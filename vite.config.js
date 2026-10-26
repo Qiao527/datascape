@@ -25,7 +25,8 @@ export default defineConfig({
       input: {
         index: resolve(root, 'index.html'),
         skyline: resolve(root, 'skyline.html'),
-        pulsar: resolve(root, 'pulsar.html')
+        pulsar: resolve(root, 'pulsar.html'),
+        storm: resolve(root, 'storm.html')
       }
     }
   }

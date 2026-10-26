@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Storm Chamber · The Hidden Dimension</title>
+    <meta name="description" content="One volume scan of the Dodge City weather radar, 13 minutes before the Rozel tornado: the flat radar map opened into the fourteen cones it was measured on, and the storm they hold." />
+    <meta name="theme-color" content="#0a0a0b" />
+  </head>
+  <body>
+    <div class="stage" id="stage"></div>
+    <div class="labels" id="labels" aria-hidden="true"></div>
+
+    <header class="masthead">
+      <a class="brand" href="/">The Hidden Dimension</a>
+      <span class="masthead-title">Storm Chamber</span>
+    </header>
+
+    <div class="topbar">
+      <button type="button" class="chip" id="sound" aria-pressed="false">Sound off</button>
+      <button type="button" class="chip" id="about" aria-expanded="false" aria-controls="about-panel">About<span class="chip-more"> the data</span></button>
+    </div>
+
+    <section class="chapter" id="chapter" aria-live="polite">
+      <p class="chapter-kicker" id="chapter-kicker"></p>
+      <h1 class="chapter-title" id="chapter-title"></h1>
+      <p class="chapter-body" id="chapter-body"></p>
+      <div class="chapter-extra" id="chapter-extra"></div>
+      <nav class="chapter-nav" aria-label="Chapters">
+        <button type="button" class="nav-button" id="prev" aria-label="Previous chapter">
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.4" /></svg>
+        </button>
+        <div class="dots" id="dots"></div>
+        <button type="button" class="nav-button nav-next" id="next">Next</button>
+      </nav>
+    </section>
+
+    <div class="legend" id="legend" aria-hidden="true">
+      <p class="legend-caption" id="legend-caption">Reflectivity · dBZ</p>
+      <canvas class="legend-bar" id="legend-bar"></canvas>
+    </div>
+    <div class="dimension" id="dimension"></div>
+
+    <aside class="readout storm-readout" id="readout" hidden>
+      <p class="readout-title" data-field="time"></p>
+      <p class="readout-leg" data-field="leg"></p>
+      <p class="readout-temperature"><span data-field="value"></span><small data-field="unit"></small></p>
+      <dl>
+        <div><dt data-field="k1"></dt><dd data-field="v1"></dd></div>
+        <div><dt data-field="k2"></dt><dd data-field="v2"></dd></div>
+        <div class="readout-probe" data-row="probe" hidden><dt>Pointer</dt><dd data-field="probe"></dd></div>
+      </dl>
+    </aside>
+
+    <section class="about-panel" id="about-panel" hidden>
+      <button type="button" class="about-close" aria-label="Close">×</button>
+      <h2>About the data</h2>
+      <p>Everything here comes from one volume scan of the WSR-88D weather radar at Dodge City, Kansas (KDDC), which began at 7:04:56 p.m. CDT on May 18, 2013. The antenna swept 14 elevation angles, from 0.5° to 19.5°, in 4 minutes 29 seconds. Each cone in the piece is one of those sweeps, drawn at its measured angle with the standard 4/3-Earth beam model.</p>
+      <dl>
+        <div><dt>Radar data</dt><dd>NOAA NEXRAD Level II, file KDDC20130519_000455_V06, from the NOAA Open Data Dissemination archive on AWS (bucket unidata-nexrad-level2). Public domain.</dd></div>
+        <div><dt>What is drawn</dt><dd>Reflectivity, in dBZ: how strongly the pulse came back from raindrops, hail and snow. It is not cloud. Cloud droplets are too small for this radar, so the real cloud reached beyond what is shown. Echoes weaker than 10 dBZ are left out.</dd></div>
+        <div><dt>Quality control</dt><dd>Gates whose correlation coefficient (ρhv) is below 0.8 are treated as non-weather (ground clutter, insects, birds) and removed, unless they are 40 dBZ or stronger. Small isolated patches are removed too.</dd></div>
+        <div><dt>The chamber</dt><dd>An 80 × 80 km box, 20 km tall, gridded at 0.5 km. Each point takes the nearest gate of the sweeps just above and below it, interpolated in dBZ; nothing between the cones was measured. Below the lowest beam and above the highest sweep that reaches a point, the box is empty. A light smoothing removes stair steps.</dd></div>
+        <div><dt>Light</dt><dd>In the 3D view the reflectivity is shaded as if it were smoke, lit by the sun from where it stood at 7:05 p.m.: west-northwest, 17° above the horizon. The shading is a rendering choice, not a photograph.</dd></div>
+        <div><dt>Scale and ground</dt><dd>Heights are drawn twice their true size until you switch to true scale. The height ruler always gives true kilometers above sea level. The ground is drawn flat at 653 m, its elevation where the tornado touched down. The radar antenna stands at 813 m.</dd></div>
+        <div><dt>Tornado</dt><dd>NOAA NCEI Storm Events Database, event 457695: EF4, on the ground from 7:18 to 7:47 p.m. CDT, 7 miles long, up to 1,100 yards wide, no injuries. The dashed line joins the surveyed start and end points; the real path curved north near its end.</dd></div>
+      </dl>
+      <p class="about-foot">Generated by <code>scripts/storm/generate_storm.py</code>.</p>
+    </section>
+
+    <div class="loader" id="loader">
+      <p>Waiting for the echo…</p>
+    </div>
+
+    <script type="module" src="/src/storm/main.js"></script>
+  </body>
+</html>
