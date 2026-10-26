@@ -1,0 +1,9 @@
+# Cloudflare Pages response headers.
+# Hashed build output never changes under the same name.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Scan data: stable, but not content-hashed.
+/data/*
+  Cache-Control: public, max-age=86400
+  X-Content-Type-Options: nosniff
