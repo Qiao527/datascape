@@ -287,14 +287,14 @@ export function createLabels(container, camera) {
   const projected = new THREE.Vector3();
 
   return {
-    add(key, { title, detail = '', anchor, side = 'right' }) {
+    add(key, { title, detail = '', anchor, side = 'right', className = '' }) {
       const element = document.createElement('div');
-      element.className = `scene-label scene-label-${side}`;
+      element.className = `scene-label scene-label-${side} ${className}`.trim();
       element.innerHTML = '<span class="scene-label-dot"></span><span class="scene-label-text"><em></em><small></small></span>';
       element.querySelector('em').textContent = title;
       element.querySelector('small').textContent = detail;
       container.appendChild(element);
-      items.push({ key, element, anchor, opacity: 0, target: 0 });
+      items.push({ key, element, anchor, side, width: 0, opacity: 0, target: 0 });
     },
     show(keys) {
       const set = new Set(keys);
@@ -312,6 +312,9 @@ export function createLabels(container, camera) {
         const x = (projected.x * 0.5 + 0.5) * width;
         const y = (-projected.y * 0.5 + 0.5) * height;
         item.element.style.visibility = projected.z > 1 ? 'hidden' : 'visible';
+        item.width ||= item.element.offsetWidth;
+        const flip = item.side === 'right' ? x + item.width > width - 12 : x - item.width < 12;
+        item.element.classList.toggle('scene-label-left', item.side === 'right' ? flip : !flip);
         item.element.style.opacity = String(item.opacity);
         item.element.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
       }

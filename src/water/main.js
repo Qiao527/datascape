@@ -677,7 +677,7 @@ async function start() {
   labels.add('critical', {
     title: 'Critical point',
     detail: '373.95 °C · 22.06 MPa',
-    anchor: worldOf(surface.anchors.critical.clone().add(new THREE.Vector3(0, 0.25, 0))),
+    anchor: worldOf(surface.anchors.critical.clone()),
     side: 'left'
   });
   labels.add('triple', {
