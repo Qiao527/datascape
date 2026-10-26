@@ -1,0 +1,21 @@
+{
+  "name": "datascape",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Turning familiar 2D charts into 3D scenes: a GitHub contribution city and a music-driven pulsar ridge plot.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "vite": "^8.3.5"
+  }
+}

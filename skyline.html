@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Commit City · GitHub 贡献之城</title>
+    <meta name="description" content="输入 GitHub 用户名，把一年的贡献日历变成一座夜晚的 3D 城市或一片发光的地形。" />
+  </head>
+  <body>
+    <div class="stage" id="stage"></div>
+
+    <aside class="panel">
+      <p class="panel-eyebrow">COMMIT CITY</p>
+      <h1>GitHub 贡献之城</h1>
+
+      <form id="search" class="search" autocomplete="off">
+        <label class="visually-hidden" for="user">GitHub 用户名</label>
+        <input id="user" name="user" placeholder="GitHub 用户名" spellcheck="false" required maxlength="40" />
+        <label class="visually-hidden" for="year">时间范围</label>
+        <select id="year" name="year"></select>
+        <button type="submit">生成</button>
+      </form>
+
+      <p class="status" id="status" role="status" hidden></p>
+      <dl class="stats" id="stats" hidden></dl>
+
+      <div class="panel-actions">
+        <div class="mode-switch" role="group" aria-label="显示方式">
+          <button type="button" data-mode="city" aria-pressed="true">城市</button>
+          <button type="button" data-mode="terrain" aria-pressed="false">地形</button>
+        </div>
+        <button type="button" class="ghost-button" id="snapshot">保存截图</button>
+      </div>
+    </aside>
+
+    <div class="tooltip" id="tooltip" hidden><strong></strong><span></span></div>
+    <p class="hint">拖动旋转 · 滚轮缩放 · 双击重置视角</p>
+    <a class="back-link" href="/">← 全部作品</a>
+
+    <script type="module" src="/src/skyline/main.js"></script>
+  </body>
+</html>
