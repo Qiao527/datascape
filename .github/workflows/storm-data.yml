@@ -1,0 +1,31 @@
+name: Storm data reproducibility
+
+# Regenerates the Storm Chamber scan from the NOAA NEXRAD archive and checks
+# the committed files are byte-identical. Runs when the generator or the data
+# change, and on demand.
+on:
+  push:
+    paths:
+      - scripts/storm/**
+      - public/data/storm/**
+  pull_request:
+    paths:
+      - scripts/storm/**
+      - public/data/storm/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: scripts/storm/requirements.txt
+      - run: python -m pip install -r scripts/storm/requirements.txt
+      - run: scripts/storm/check_reproducible.sh

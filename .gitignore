@@ -5,3 +5,7 @@ dist/
 .env.*
 __pycache__/
 *.pyc
+
+# test output
+playwright-report/
+test-results/
