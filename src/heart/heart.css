@@ -1,0 +1,20 @@
+body {
+  background: #070708;
+}
+
+.extra-label {
+  margin: 0 0 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.chapter-extra .toggles + .extra-label {
+  margin-top: 16px;
+}
+
+.heart-readout .readout-temperature {
+  font-size: 26px;
+}

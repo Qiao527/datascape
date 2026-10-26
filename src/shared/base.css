@@ -5,7 +5,8 @@
 }
 
 :root {
-  --font-sans: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  --font-serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --font-sans: "Inter Variable", "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
   color-scheme: dark;
 }
