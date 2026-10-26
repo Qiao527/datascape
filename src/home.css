@@ -111,7 +111,7 @@ h1 {
   margin: 0 0 10px;
   font-family: var(--font-mono);
   font-size: 12px;
-  color: rgba(232, 236, 244, 0.48);
+  color: rgba(232, 236, 244, 0.56);
 }
 
 .card h2 {
@@ -125,4 +125,27 @@ h1 {
   font-size: 15px;
   line-height: 1.7;
   color: rgba(232, 236, 244, 0.68);
+}
+
+.card-art-storm {
+  display: block;
+  background: linear-gradient(180deg, #0a0a0b 0%, #17151a 100%);
+  padding: 14px 0 0;
+}
+
+.card-art-storm .beams path {
+  fill: none;
+  stroke: rgba(236, 232, 225, 0.32);
+  stroke-width: 0.6;
+  transition: stroke 0.6s;
+}
+
+.card-art-storm .ground {
+  fill: none;
+  stroke: rgba(236, 232, 225, 0.5);
+  stroke-width: 0.8;
+}
+
+.card-storm:hover .card-art-storm .beams path {
+  stroke: rgba(232, 182, 110, 0.55);
 }

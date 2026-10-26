@@ -3,8 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>Datascape · 把 2D 图表变成 3D 场景</title>
-    <meta name="description" content="把熟悉的 2D 图表变成可以走进去的 3D 场景：GitHub 贡献之城与音乐驱动的脉冲星山脊。" />
+    <meta name="description" content="把熟悉的 2D 图表变成可以走进去的 3D 场景：GitHub 贡献之城、音乐驱动的脉冲星山脊，以及一次真实雷达体扫里的风暴。" />
     <link rel="stylesheet" href="/src/shared/base.css" />
     <link rel="stylesheet" href="/src/home.css" />
   </head>
@@ -43,6 +44,33 @@
             <p class="card-from">脉冲星堆叠折线图 → 会随音乐起伏的山脊</p>
             <h2>PSR B1919+21</h2>
             <p>向那张著名唱片封面致敬：上传一首歌或打开麦克风，频谱化作一道道向远方流去的白色山脊。</p>
+          </div>
+        </a>
+
+        <a class="card card-storm" href="/storm.html">
+          <svg class="card-art card-art-storm" viewBox="0 0 200 120" aria-hidden="true">
+            <defs>
+              <radialGradient id="storm-core" cx="0.55" cy="0.45" r="0.6">
+                <stop offset="0" stop-color="#f1e6d2" />
+                <stop offset="0.35" stop-color="#e8b66e" stop-opacity="0.9" />
+                <stop offset="1" stop-color="#ece8e1" stop-opacity="0" />
+              </radialGradient>
+            </defs>
+            <ellipse cx="138" cy="62" rx="40" ry="34" fill="url(#storm-core)" opacity="0.75" />
+            <g class="beams">
+              <path d="M14 104 L196 99" /><path d="M14 104 L196 94" /><path d="M14 104 L196 88" />
+              <path d="M14 104 L196 81" /><path d="M14 104 L196 72" /><path d="M14 104 L196 62" />
+              <path d="M14 104 L196 50" /><path d="M14 104 L196 35" /><path d="M14 104 L190 16" />
+              <path d="M14 104 L160 6" /><path d="M14 104 L124 4" /><path d="M14 104 L96 4" />
+              <path d="M14 104 L74 4" /><path d="M14 104 L56 4" />
+            </g>
+            <path class="ground" d="M0 104 Q100 101 200 104" />
+            <circle cx="14" cy="104" r="2.2" fill="#e8b66e" />
+          </svg>
+          <div class="card-body">
+            <p class="card-from">气象雷达图 → 一个装着风暴的立体空间</p>
+            <h2>Storm Chamber</h2>
+            <p>2013 年 5 月 18 日，堪萨斯 Rozel 龙卷触地前 13 分钟的一次真实雷达体扫：平面雷达图展开成 14 层扫描锥面，再填成一整块可以剖开的风暴。</p>
           </div>
         </a>
       </section>

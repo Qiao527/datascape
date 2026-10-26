@@ -22,7 +22,7 @@ export async function loadStorm() {
   return createStormData(meta, part(meta.layout.volume), part(meta.layout.low), part(meta.layout.upper));
 }
 
-function createStormData(meta, volume, low, upper) {
+export function createStormData(meta, volume, low, upper) {
   const { min, step } = meta.encoding;
   const { box } = meta;
   const dbz = (code) => (code > 0 ? min + (code - 1) * step : null);
@@ -66,7 +66,8 @@ function createStormData(meta, volume, low, upper) {
     const k = Math.round((zMsl - box.z0) / box.cell);
     let best = 0;
     let area = 0;
-    const threshold = Math.round((30 - min) / step) + 1;
+    // The first code that decodes to 30 dBZ or more (code 84 is 29.9).
+    const threshold = Math.ceil((30 - min) / step - 1e-9) + 1;
     if (k >= 0 && k < box.nz) {
       const base = box.nx * box.ny * k;
       for (let n = 0; n < box.nx * box.ny; n += 1) {

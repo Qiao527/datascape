@@ -407,10 +407,19 @@ function probe() {
 
 function toggleAbout(force) {
   const panel = document.querySelector('#about-panel');
+  const chip = document.querySelector('#about');
   const open = force ?? panel.hidden;
+  if (open === !panel.hidden) return;
   panel.hidden = !open;
-  document.querySelector('#about').setAttribute('aria-expanded', String(open));
+  chip.setAttribute('aria-expanded', String(open));
+  // Focus follows the panel in and back out to the chip that opened it.
+  if (open) panel.querySelector('.about-close').focus();
+  else if (panel.contains(document.activeElement) || document.activeElement === document.body) chip.focus();
 }
+
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') toggleAbout(false);
+});
 
 async function toggleSound() {
   const button = document.querySelector('#sound');
