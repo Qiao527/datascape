@@ -8,7 +8,7 @@ const ci = Boolean(process.env.CI);
 
 export default defineConfig({
   testDir: 'tests/e2e',
-  timeout: ci ? 120_000 : 60_000,
+  timeout: ci ? 240_000 : 60_000,
   expect: { timeout: ci ? 30_000 : 10_000 },
   fullyParallel: false,
   workers: 1,
@@ -19,7 +19,8 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     ...devices['Desktop Chrome'],
-    viewport: { width: 1440, height: 900 },
+    // CI renders on the CPU; a smaller desktop viewport keeps frames short.
+    viewport: ci ? { width: 960, height: 600 } : { width: 1440, height: 900 },
     channel: ci ? undefined : 'chrome',
     launchOptions: {
       args: ci ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] : ['--ignore-gpu-blocklist']

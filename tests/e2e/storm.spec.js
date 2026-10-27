@@ -1,8 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { frameStats, openStorm, settle, watchErrors } from './helpers.js';
+import { frameStats, openStorm, sceneClip, settle, watchErrors } from './helpers.js';
 
-const SCENE = { x: 480, y: 110, width: 700, height: 620 };
 const field = (page, name) => page.locator(`#readout [data-field="${name}"]`);
 
 const CHAPTERS = [
@@ -25,7 +24,7 @@ test.describe('Storm Chamber', () => {
     await expect(page.locator('#chapter-title')).toHaveText('Storm Chamber');
     await expect(page.locator('.stage canvas')).toBeVisible();
     await settle(page);
-    const stats = await frameStats(page, SCENE);
+    const stats = await frameStats(page, sceneClip(page));
     // Range rings and the echo: a lit, structured frame, not a cleared one.
     expect(stats.mean).toBeGreaterThan(14);
     expect(stats.bright).toBeGreaterThan(0.003);
@@ -66,12 +65,12 @@ test.describe('Storm Chamber', () => {
   test('renders the volume: smoke, then NWS colors', async ({ page }) => {
     await openStorm(page, '#volume');
     await settle(page, 2500);
-    const smoke = await frameStats(page, SCENE);
+    const smoke = await frameStats(page, sceneClip(page));
     expect(smoke.bright).toBeGreaterThan(0.05);
     await page.keyboard.press('ArrowRight');
     await expect(page.locator('#chapter-title')).toHaveText('Rain and ice, not cloud');
     await settle(page, 2500);
-    const colors = await frameStats(page, SCENE);
+    const colors = await frameStats(page, sceneClip(page));
     expect(colors.warm).toBeGreaterThan(0.03); // yellow-orange core of the NWS scale
   });
 
@@ -122,10 +121,11 @@ test.describe('Storm Chamber', () => {
     await openStorm(page, '#section');
     await settle(page);
     const probe = page.locator('#readout [data-row="probe"]');
+    const { width, height } = page.viewportSize();
     let found = false;
-    for (let y = 250; y <= 700 && !found; y += 90) {
-      for (let x = 600; x <= 1300 && !found; x += 100) {
-        await page.mouse.move(x, y);
+    for (let fy = 0.28; fy <= 0.78 && !found; fy += 0.1) {
+      for (let fx = 0.42; fx <= 0.9 && !found; fx += 0.07) {
+        await page.mouse.move(width * fx, height * fy);
         await page.waitForTimeout(80);
         found = await probe.isVisible();
       }
@@ -192,8 +192,8 @@ test('full motion: the camera flies between chapters', async ({ page }) => {
   await openStorm(page);
   await page.keyboard.press('ArrowRight');
   await page.waitForTimeout(400);
-  const early = await frameStats(page, SCENE);
+  const early = await frameStats(page, sceneClip(page));
   await page.waitForTimeout(6000);
-  const late = await frameStats(page, SCENE);
+  const late = await frameStats(page, sceneClip(page));
   expect(Math.abs(late.mean - early.mean)).toBeGreaterThan(0.5);
 });

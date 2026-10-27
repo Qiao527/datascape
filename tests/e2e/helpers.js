@@ -15,10 +15,19 @@ export function watchErrors(page) {
 
 /** Opens Storm Chamber and waits for the scan to load. */
 export async function openStorm(page, hash = '') {
-  // Long frame steps keep tweens moving on slow software renderers.
-  await page.goto(`/storm.html?maxdt=1${hash}`);
-  await expect(page.locator('#loader')).toBeHidden({ timeout: 60_000 });
+  // Long frame steps keep tweens moving on slow software renderers. In CI the
+  // volume is ray-marched on the CPU (SwiftShader), so it is drawn at half
+  // resolution: same shaders and code paths, a quarter of the pixels.
+  const dpr = process.env.CI ? '&dpr=0.5' : '';
+  await page.goto(`/storm.html?maxdt=1${dpr}${hash}`);
+  await expect(page.locator('#loader')).toBeHidden({ timeout: 90_000 });
   await expect(page.locator('#chapter-title')).not.toBeEmpty();
+}
+
+/** The part of the viewport the scene occupies beside the chapter card. */
+export function sceneClip(page) {
+  const { width, height } = page.viewportSize();
+  return { x: Math.round(width / 3), y: Math.round(height * 0.12), width: Math.round(width * 0.48), height: Math.round(height * 0.69) };
 }
 
 /**
