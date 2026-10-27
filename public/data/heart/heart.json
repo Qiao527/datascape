@@ -1,0 +1,72 @@
+{
+ "source": {
+  "database": "PTB Diagnostic ECG Database 1.0.0 (PhysioNet)",
+  "license": "Open Data Commons Attribution License v1.0",
+  "record": "patient122/s0312lre",
+  "subject": "healthy control",
+  "url": "https://physionet.org/content/ptbdb/1.0.0/"
+ },
+ "processing": {
+  "filter": "zero-phase 2nd-order Butterworth band-pass 0.05-40 Hz; cubic-spline baseline through PR segments",
+  "units": "microvolts (int16)",
+  "fiducials": "estimated from the median beat's vector magnitude and spatial velocity"
+ },
+ "fs": 1000,
+ "displayFs": 500,
+ "windowStart": 12.0,
+ "duration": 10.0,
+ "leads": [
+  "i",
+  "ii",
+  "iii",
+  "avr",
+  "avl",
+  "avf",
+  "v1",
+  "v2",
+  "v3",
+  "v4",
+  "v5",
+  "v6"
+ ],
+ "layout": {
+  "twelve": {
+   "offset": 0,
+   "length": 60000
+  },
+  "xyz": {
+   "offset": 120000,
+   "length": 30000
+  },
+  "median": {
+   "offset": 180000,
+   "length": 2760
+  }
+ },
+ "beats": [
+  504,
+  1442,
+  2378,
+  3306,
+  4242,
+  5169,
+  6073,
+  6974,
+  7836,
+  8651
+ ],
+ "medianR": 360,
+ "medianLength": 920,
+ "fiducials": {
+  "pOn": -203,
+  "pPeak": -147,
+  "pOff": -108,
+  "qrsOn": -43,
+  "r": 0,
+  "qrsOff": 40,
+  "tPeak": 258,
+  "tEnd": 342
+ },
+ "heartRate": 66.4,
+ "binary": "heart.bin"
+}

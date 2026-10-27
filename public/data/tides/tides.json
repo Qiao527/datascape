@@ -1,0 +1,665 @@
+{
+ "station": {
+  "id": "8410140",
+  "name": "Eastport, Maine",
+  "lat": 44.9046,
+  "lon": -66.9829
+ },
+ "site": {
+  "name": "South Lubec, Maine",
+  "center": [
+   44.8345,
+   -66.9905
+  ],
+  "bounds": [
+   44.84349849294018,
+   -67.00820503657773,
+   44.82550150705982,
+   -66.97279496342226
+  ],
+  "distanceToGaugeKm": 7.8
+ },
+ "sources": {
+  "water": "NOAA CO-OPS 8410140 Eastport, ME: verified 6-minute water level and harmonic predictions, NAVD88, meters",
+  "terrain": "NOAA NCEI CUDEM 1/9 arc-second topobathy, ncei19_n45x00_w067x25 and ncei19_n45x00_w067x00 (2021v1), NAVD88, meters",
+  "datumsEpoch": "1983-2001"
+ },
+ "datum": "NAVD88",
+ "start": "2024-09-03T00:00:00+00:00",
+ "intervalMinutes": 6,
+ "count": 7200,
+ "datums": {
+  "MHHW": 2.845,
+  "MHW": 2.7,
+  "MSL": -0.071,
+  "MLW": -2.893,
+  "MLLW": -3.029
+ },
+ "observedMax": {
+  "hour": 400.2,
+  "value": 3.855
+ },
+ "observedMin": {
+  "hour": 406.7,
+  "value": -3.654
+ },
+ "residual": {
+  "max": 0.45300000000000007,
+  "min": -0.1549999999999998,
+  "rms": 0.18913962471911824
+ },
+ "extrema": [
+  {
+   "hour": 3.5,
+   "kind": "high",
+   "value": 2.907
+  },
+  {
+   "hour": 9.9,
+   "kind": "low",
+   "value": -2.945
+  },
+  {
+   "hour": 15.9,
+   "kind": "high",
+   "value": 2.675
+  },
+  {
+   "hour": 22.2,
+   "kind": "low",
+   "value": -2.751
+  },
+  {
+   "hour": 28.2,
+   "kind": "high",
+   "value": 2.799
+  },
+  {
+   "hour": 34.5,
+   "kind": "low",
+   "value": -2.908
+  },
+  {
+   "hour": 40.5,
+   "kind": "high",
+   "value": 2.631
+  },
+  {
+   "hour": 46.8,
+   "kind": "low",
+   "value": -2.797
+  },
+  {
+   "hour": 52.8,
+   "kind": "high",
+   "value": 2.687
+  },
+  {
+   "hour": 59.1,
+   "kind": "low",
+   "value": -2.873
+  },
+  {
+   "hour": 65.1,
+   "kind": "high",
+   "value": 2.61
+  },
+  {
+   "hour": 71.4,
+   "kind": "low",
+   "value": -2.819
+  },
+  {
+   "hour": 77.4,
+   "kind": "high",
+   "value": 2.566
+  },
+  {
+   "hour": 83.7,
+   "kind": "low",
+   "value": -2.721
+  },
+  {
+   "hour": 89.7,
+   "kind": "high",
+   "value": 2.679
+  },
+  {
+   "hour": 96.0,
+   "kind": "low",
+   "value": -2.622
+  },
+  {
+   "hour": 102.0,
+   "kind": "high",
+   "value": 2.664
+  },
+  {
+   "hour": 108.3,
+   "kind": "low",
+   "value": -2.407
+  },
+  {
+   "hour": 114.3,
+   "kind": "high",
+   "value": 2.764
+  },
+  {
+   "hour": 120.7,
+   "kind": "low",
+   "value": -2.403
+  },
+  {
+   "hour": 126.7,
+   "kind": "high",
+   "value": 2.509
+  },
+  {
+   "hour": 132.9,
+   "kind": "low",
+   "value": -2.402
+  },
+  {
+   "hour": 139.0,
+   "kind": "high",
+   "value": 2.623
+  },
+  {
+   "hour": 145.3,
+   "kind": "low",
+   "value": -2.376
+  },
+  {
+   "hour": 151.4,
+   "kind": "high",
+   "value": 2.372
+  },
+  {
+   "hour": 157.6,
+   "kind": "low",
+   "value": -2.24
+  },
+  {
+   "hour": 163.7,
+   "kind": "high",
+   "value": 2.453
+  },
+  {
+   "hour": 170.1,
+   "kind": "low",
+   "value": -2.322
+  },
+  {
+   "hour": 176.1,
+   "kind": "high",
+   "value": 2.133
+  },
+  {
+   "hour": 182.4,
+   "kind": "low",
+   "value": -2.076
+  },
+  {
+   "hour": 188.4,
+   "kind": "high",
+   "value": 2.361
+  },
+  {
+   "hour": 194.9,
+   "kind": "low",
+   "value": -2.231
+  },
+  {
+   "hour": 201.0,
+   "kind": "high",
+   "value": 1.92
+  },
+  {
+   "hour": 207.2,
+   "kind": "low",
+   "value": -1.915
+  },
+  {
+   "hour": 213.3,
+   "kind": "high",
+   "value": 2.273
+  },
+  {
+   "hour": 219.8,
+   "kind": "low",
+   "value": -2.223
+  },
+  {
+   "hour": 225.9,
+   "kind": "high",
+   "value": 1.852
+  },
+  {
+   "hour": 232.2,
+   "kind": "low",
+   "value": -1.848
+  },
+  {
+   "hour": 238.3,
+   "kind": "high",
+   "value": 2.257
+  },
+  {
+   "hour": 244.9,
+   "kind": "low",
+   "value": -2.296
+  },
+  {
+   "hour": 251.0,
+   "kind": "high",
+   "value": 1.893
+  },
+  {
+   "hour": 257.2,
+   "kind": "low",
+   "value": -1.976
+  },
+  {
+   "hour": 263.4,
+   "kind": "high",
+   "value": 2.415
+  },
+  {
+   "hour": 269.9,
+   "kind": "low",
+   "value": -2.489
+  },
+  {
+   "hour": 276.0,
+   "kind": "high",
+   "value": 2.094
+  },
+  {
+   "hour": 282.2,
+   "kind": "low",
+   "value": -2.242
+  },
+  {
+   "hour": 288.4,
+   "kind": "high",
+   "value": 2.744
+  },
+  {
+   "hour": 294.9,
+   "kind": "low",
+   "value": -2.833
+  },
+  {
+   "hour": 300.9,
+   "kind": "high",
+   "value": 2.462
+  },
+  {
+   "hour": 307.2,
+   "kind": "low",
+   "value": -2.625
+  },
+  {
+   "hour": 313.3,
+   "kind": "high",
+   "value": 2.998
+  },
+  {
+   "hour": 319.8,
+   "kind": "low",
+   "value": -3.179
+  },
+  {
+   "hour": 325.8,
+   "kind": "high",
+   "value": 2.796
+  },
+  {
+   "hour": 332.1,
+   "kind": "low",
+   "value": -3.088
+  },
+  {
+   "hour": 338.2,
+   "kind": "high",
+   "value": 3.286
+  },
+  {
+   "hour": 344.6,
+   "kind": "low",
+   "value": -3.538
+  },
+  {
+   "hour": 350.7,
+   "kind": "high",
+   "value": 3.169
+  },
+  {
+   "hour": 357.0,
+   "kind": "low",
+   "value": -3.42
+  },
+  {
+   "hour": 363.0,
+   "kind": "high",
+   "value": 3.625
+  },
+  {
+   "hour": 369.4,
+   "kind": "low",
+   "value": -3.601
+  },
+  {
+   "hour": 375.5,
+   "kind": "high",
+   "value": 3.594
+  },
+  {
+   "hour": 381.8,
+   "kind": "low",
+   "value": -3.619
+  },
+  {
+   "hour": 387.9,
+   "kind": "high",
+   "value": 3.726
+  },
+  {
+   "hour": 394.2,
+   "kind": "low",
+   "value": -3.641
+  },
+  {
+   "hour": 400.3,
+   "kind": "high",
+   "value": 3.837
+  },
+  {
+   "hour": 406.7,
+   "kind": "low",
+   "value": -3.654
+  },
+  {
+   "hour": 412.7,
+   "kind": "high",
+   "value": 3.719
+  },
+  {
+   "hour": 419.0,
+   "kind": "low",
+   "value": -3.488
+  },
+  {
+   "hour": 425.1,
+   "kind": "high",
+   "value": 3.818
+  },
+  {
+   "hour": 431.5,
+   "kind": "low",
+   "value": -3.462
+  },
+  {
+   "hour": 437.5,
+   "kind": "high",
+   "value": 3.644
+  },
+  {
+   "hour": 443.9,
+   "kind": "low",
+   "value": -3.282
+  },
+  {
+   "hour": 449.9,
+   "kind": "high",
+   "value": 3.756
+  },
+  {
+   "hour": 456.4,
+   "kind": "low",
+   "value": -3.427
+  },
+  {
+   "hour": 462.4,
+   "kind": "high",
+   "value": 3.379
+  },
+  {
+   "hour": 468.7,
+   "kind": "low",
+   "value": -2.966
+  },
+  {
+   "hour": 474.7,
+   "kind": "high",
+   "value": 3.622
+  },
+  {
+   "hour": 481.2,
+   "kind": "low",
+   "value": -3.114
+  },
+  {
+   "hour": 487.3,
+   "kind": "high",
+   "value": 3.075
+  },
+  {
+   "hour": 493.6,
+   "kind": "low",
+   "value": -2.699
+  },
+  {
+   "hour": 499.7,
+   "kind": "high",
+   "value": 3.296
+  },
+  {
+   "hour": 506.2,
+   "kind": "low",
+   "value": -2.95
+  },
+  {
+   "hour": 512.3,
+   "kind": "high",
+   "value": 2.718
+  },
+  {
+   "hour": 518.5,
+   "kind": "low",
+   "value": -2.454
+  },
+  {
+   "hour": 524.6,
+   "kind": "high",
+   "value": 2.978
+  },
+  {
+   "hour": 531.2,
+   "kind": "low",
+   "value": -2.686
+  },
+  {
+   "hour": 537.3,
+   "kind": "high",
+   "value": 2.473
+  },
+  {
+   "hour": 543.6,
+   "kind": "low",
+   "value": -2.225
+  },
+  {
+   "hour": 549.7,
+   "kind": "high",
+   "value": 2.708
+  },
+  {
+   "hour": 556.3,
+   "kind": "low",
+   "value": -2.528
+  },
+  {
+   "hour": 562.4,
+   "kind": "high",
+   "value": 2.316
+  },
+  {
+   "hour": 568.7,
+   "kind": "low",
+   "value": -2.116
+  },
+  {
+   "hour": 574.8,
+   "kind": "high",
+   "value": 2.666
+  },
+  {
+   "hour": 581.4,
+   "kind": "low",
+   "value": -2.353
+  },
+  {
+   "hour": 587.5,
+   "kind": "high",
+   "value": 2.352
+  },
+  {
+   "hour": 593.8,
+   "kind": "low",
+   "value": -2.034
+  },
+  {
+   "hour": 599.9,
+   "kind": "high",
+   "value": 2.668
+  },
+  {
+   "hour": 606.4,
+   "kind": "low",
+   "value": -2.509
+  },
+  {
+   "hour": 612.5,
+   "kind": "high",
+   "value": 2.337
+  },
+  {
+   "hour": 618.8,
+   "kind": "low",
+   "value": -2.152
+  },
+  {
+   "hour": 624.9,
+   "kind": "high",
+   "value": 2.727
+  },
+  {
+   "hour": 631.3,
+   "kind": "low",
+   "value": -2.49
+  },
+  {
+   "hour": 637.4,
+   "kind": "high",
+   "value": 2.516
+  },
+  {
+   "hour": 643.6,
+   "kind": "low",
+   "value": -2.278
+  },
+  {
+   "hour": 649.7,
+   "kind": "high",
+   "value": 2.783
+  },
+  {
+   "hour": 656.1,
+   "kind": "low",
+   "value": -2.587
+  },
+  {
+   "hour": 662.2,
+   "kind": "high",
+   "value": 2.633
+  },
+  {
+   "hour": 668.4,
+   "kind": "low",
+   "value": -2.524
+  },
+  {
+   "hour": 674.4,
+   "kind": "high",
+   "value": 2.803
+  },
+  {
+   "hour": 680.8,
+   "kind": "low",
+   "value": -2.673
+  },
+  {
+   "hour": 686.8,
+   "kind": "high",
+   "value": 2.769
+  },
+  {
+   "hour": 693.1,
+   "kind": "low",
+   "value": -2.65
+  },
+  {
+   "hour": 699.1,
+   "kind": "high",
+   "value": 2.851
+  },
+  {
+   "hour": 705.4,
+   "kind": "low",
+   "value": -2.645
+  },
+  {
+   "hour": 711.4,
+   "kind": "high",
+   "value": 2.867
+  },
+  {
+   "hour": 717.7,
+   "kind": "low",
+   "value": -2.693
+  }
+ ],
+ "rangeMax": 7.491,
+ "rangeMin": 3.7,
+ "terrain": {
+  "nx": 561,
+  "nz": 401,
+  "cell": 5.0,
+  "zRange": [
+   -16.0,
+   52.0
+  ],
+  "min": -10.131770133972168,
+  "max": 31.67609977722168,
+  "waterlineShiftM": 1790.0
+ },
+ "layout": {
+  "terrain": {
+   "offset": 0,
+   "length": 224961,
+   "type": "uint16"
+  },
+  "observed": {
+   "offset": 449922,
+   "length": 7200,
+   "type": "int16"
+  },
+  "predicted": {
+   "offset": 464322,
+   "length": 7200,
+   "type": "int16"
+  }
+ },
+ "binary": "tides.bin"
+}
