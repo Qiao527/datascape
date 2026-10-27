@@ -432,7 +432,9 @@ async function toggleSound() {
 // Build
 
 function addLabels() {
-  labels = createLabels(document.querySelector('#labels'), camera);
+  labels = createLabels(document.querySelector('#labels'), camera, {
+    avoid: ['.masthead', '.topbar', '#chapter', '#readout', '#legend.is-visible', '#dimension']
+  });
   const v3 = (x, y, z) => new THREE.Vector3(x, y, z);
   const f = meta.facts;
   const lowEl = meta.sweeps[0].el;

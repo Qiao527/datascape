@@ -81,6 +81,11 @@ build in Chrome. They check that:
 - frames are actually drawn, using brightness statistics from real screenshots;
 - the scan replay, Explore controls, pointer probe, dimension control, About dialog and sound all work;
 - phone layout and full-motion camera flights work;
+- on a phone and on a 1280 × 720 laptop, scene labels stay on screen, never overlap one another, and
+  never sit under the chapter card, readout, legend or top bars;
+- the page explains itself rather than hanging when WebGL or `DecompressionStream` is missing, or when
+  the scan fails to download or is corrupt;
+- the scene comes back after the GPU context is lost and restored;
 - axe-core reports no accessibility violations.
 
 Commit City and PSR B1919+21 have smoke tests in the same suite.

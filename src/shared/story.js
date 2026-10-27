@@ -212,6 +212,14 @@ export function createStory({ chapters, onEnter, onEvent = () => {}, extraFor = 
     touched = true;
     event.preventDefault();
   });
+  // A hash typed into the address bar, or a link to #chapter, moves the story.
+  // goTo itself uses replaceState, which does not fire hashchange.
+  window.addEventListener('hashchange', () => {
+    const i = chapters.findIndex((chapter) => `#${chapter.key}` === location.hash);
+    if (i < 0) return;
+    touched = true;
+    goTo(i);
+  });
   for (const type of ['pointerdown', 'wheel']) {
     window.addEventListener(type, () => {
       touched = true;
@@ -281,10 +289,41 @@ export function createStory({ chapters, onEnter, onEvent = () => {}, extraFor = 
   };
 }
 
-/** HTML labels pinned to points in the scene. */
-export function createLabels(container, camera) {
+/**
+ * HTML labels pinned to points in the scene. `avoid` lists selectors of fixed
+ * interface panels the label text should not sit under.
+ */
+export function createLabels(container, camera, { avoid = [] } = {}) {
   const items = [];
   const projected = new THREE.Vector3();
+  const overlaps = (a, b) => a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0;
+
+  function panels() {
+    const rects = [];
+    for (const selector of avoid) {
+      for (const element of document.querySelectorAll(selector)) {
+        const r = element.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0) rects.push({ x0: r.left, x1: r.right, y0: r.top, y1: r.bottom });
+      }
+    }
+    return rects;
+  }
+
+  /** The smallest vertical offset that keeps a text box clear of `taken`, or null. */
+  function clearOffset(box, taken, height) {
+    const candidates = [0];
+    for (const r of taken) {
+      if (box.x0 >= r.x1 || box.x1 <= r.x0) continue;
+      candidates.push(r.y1 + 2 - box.y0, r.y0 - 2 - box.y1);
+    }
+    candidates.sort((a, b) => Math.abs(a) - Math.abs(b));
+    for (const dy of candidates) {
+      const moved = { x0: box.x0, x1: box.x1, y0: box.y0 + dy, y1: box.y1 + dy };
+      if (moved.y0 < 0 || moved.y1 > height) continue;
+      if (!taken.some((r) => overlaps(moved, r))) return dy;
+    }
+    return null;
+  }
 
   return {
     add(key, { title, detail = '', anchor, side = 'right', className = '' }) {
@@ -294,7 +333,9 @@ export function createLabels(container, camera) {
       element.querySelector('em').textContent = title;
       element.querySelector('small').textContent = detail;
       container.appendChild(element);
-      items.push({ key, element, anchor, side, width: 0, opacity: 0, target: 0 });
+      const text = element.querySelector('.scene-label-text');
+      text.style.position = 'relative';
+      items.push({ key, element, text, anchor, side, width: 0, height: 0, opacity: 0, target: 0, rank: Infinity, dx: 0, dy: 0 });
     },
     /** Changes a label's text; untouched fields keep theirs. */
     setText(key, { title, detail } = {}) {
@@ -304,18 +345,24 @@ export function createLabels(container, camera) {
       const small = item.element.querySelector('small');
       if (title !== undefined && em.textContent !== title) {
         em.textContent = title;
-        item.width = 0;
+        item.width = item.height = 0;
       }
       if (detail !== undefined && small.textContent !== detail) {
         small.textContent = detail;
-        item.width = 0;
+        item.width = item.height = 0;
       }
     },
+    /** Shows these labels; earlier keys keep their place when labels collide. */
     show(keys) {
-      const set = new Set(keys);
-      for (const item of items) item.target = set.has(item.key) ? 1 : 0;
+      for (const item of items) {
+        const rank = keys.indexOf(item.key);
+        item.target = rank < 0 ? 0 : 1;
+        item.rank = rank < 0 ? Infinity : rank;
+      }
     },
     update(delta, width, height) {
+      const margin = 8;
+      const visible = [];
       for (const item of items) {
         item.opacity += (item.target - item.opacity) * Math.min(1, delta * 3);
         if (item.opacity < 0.01) {
@@ -326,12 +373,45 @@ export function createLabels(container, camera) {
         projected.copy(anchor).project(camera);
         const x = (projected.x * 0.5 + 0.5) * width;
         const y = (-projected.y * 0.5 + 0.5) * height;
-        item.element.style.visibility = projected.z > 1 ? 'hidden' : 'visible';
-        item.width ||= item.element.offsetWidth;
-        const flip = item.side === 'right' ? x + item.width > width - 12 : x - item.width < 12;
-        item.element.classList.toggle('scene-label-left', item.side === 'right' ? flip : !flip);
+        // Behind the camera, or pointing at something off screen.
+        const behind = projected.z > 1 || x < 0 || y < 0 || x > width || y > height;
+        item.element.style.visibility = behind ? 'hidden' : 'visible';
         item.element.style.opacity = String(item.opacity);
         item.element.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+        if (!behind) visible.push({ item, x, y });
+      }
+
+      // Place text in rank order: flip toward the side with room, slide along
+      // when neither side has enough, then take the smallest step up or down
+      // that clears the interface and the labels already placed. A label with
+      // no room at all stays hidden this frame.
+      visible.sort((a, b) => a.item.rank - b.item.rank);
+      const taken = visible.length ? panels() : [];
+      for (const { item, x, y } of visible) {
+        item.width ||= item.element.offsetWidth;
+        item.height ||= item.text.offsetHeight;
+        const flip = item.side === 'right' ? x + item.width > width - 12 : x - item.width < 12;
+        const left = item.side === 'right' ? flip : !flip;
+        item.element.classList.toggle('scene-label-left', left);
+        const dx = left ? Math.max(0, margin - (x - item.width)) : Math.min(0, width - margin - (x + item.width));
+        const x0 = (left ? x - item.width : x) + dx;
+        const top = item.element.classList.contains('scene-label-up') ? y - item.height - 6 : y - item.height / 2;
+        const box = { x0, x1: x0 + item.width, y0: top, y1: top + item.height };
+        const dy = clearOffset(box, taken, height);
+        if (dy === null) {
+          item.element.style.visibility = 'hidden';
+          continue;
+        }
+        taken.push({ ...box, y0: box.y0 + dy, y1: box.y1 + dy });
+        // dx follows the anchor continuously; dy can jump when labels start to
+        // overlap, so it eases.
+        const easedDy = item.dy + (dy - item.dy) * Math.min(1, delta * 10);
+        if (Math.abs(dx - item.dx) > 0.25 || Math.abs(dy - item.dy) > 0.25) {
+          item.dx = dx;
+          item.dy = Math.abs(dy - easedDy) < 0.25 ? dy : easedDy;
+          item.text.style.left = `${item.dx.toFixed(1)}px`;
+          item.text.style.top = `${item.dy.toFixed(1)}px`;
+        }
       }
     }
   };

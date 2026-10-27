@@ -78,6 +78,12 @@ test.describe('Storm Chamber', () => {
     await openStorm(page, '#tornado');
     await expect(page.locator('#chapter-title')).toHaveText('Thirteen minutes');
     await expect(page.locator('#prev')).toBeVisible();
+    // Changing the hash on a loaded page moves the story too.
+    await page.evaluate(() => {
+      location.hash = '#section';
+    });
+    await expect(page.locator('#chapter-title')).toHaveText('Cut it open');
+    await expect(field(page, 'leg')).toHaveText('Horizontal section');
   });
 
   test('scan replay steps through the sweeps in order', async ({ page }) => {
@@ -170,6 +176,50 @@ test.describe('Storm Chamber', () => {
     expect(results.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
   });
 });
+
+/** Screen rectangles of the label texts that are currently showing. */
+async function labelRects(page) {
+  return page.locator('.scene-label').evaluateAll((elements) =>
+    elements
+      .filter((e) => e.style.visibility === 'visible' && Number(e.style.opacity) > 0.6)
+      .map((e) => {
+        const r = e.querySelector('.scene-label-text').getBoundingClientRect();
+        return { text: e.textContent, x0: r.left, x1: r.right, y0: r.top, y1: r.bottom };
+      })
+      .filter((r) => r.x1 - r.x0 > 0)
+  );
+}
+
+for (const [device, viewport] of [['phone', { width: 390, height: 844 }], ['laptop', { width: 1280, height: 720 }]]) {
+  test.describe(`labels on a ${device}`, () => {
+    test.use({ viewport, reducedMotion: 'reduce' });
+
+    for (const chapter of ['prologue', 'cones', 'volume', 'reflectivity', 'tornado']) {
+      test(`${chapter}: on screen and apart`, async ({ page }) => {
+        await openStorm(page, `#${chapter}`);
+        await settle(page, 2000);
+        const rects = await labelRects(page);
+        expect(rects.length).toBeGreaterThan(0);
+        for (const r of rects) {
+          expect(r.x0, r.text).toBeGreaterThanOrEqual(0);
+          expect(r.x1, r.text).toBeLessThanOrEqual(viewport.width);
+        }
+        const overlap = (a, b) => Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0) > 2 && Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0) > 2;
+        for (let i = 0; i < rects.length; i += 1) {
+          for (let j = i + 1; j < rects.length; j += 1) expect(overlap(rects[i], rects[j]), `${rects[i].text} / ${rects[j].text}`).toBe(false);
+        }
+        // Nor under the interface: chapter card, readout, legend, bars.
+        const panels = await page.evaluate(() =>
+          [...document.querySelectorAll('.masthead, .topbar, #chapter, #readout, #legend.is-visible, #dimension')]
+            .map((e) => ({ id: e.id || e.className, r: e.getBoundingClientRect() }))
+            .filter(({ r }) => r.width > 0)
+            .map(({ id, r }) => ({ text: id, x0: r.left, x1: r.right, y0: r.top, y1: r.bottom }))
+        );
+        for (const r of rects) for (const p of panels) expect(overlap(r, p), `${r.text} under ${p.text}`).toBe(false);
+      });
+    }
+  });
+}
 
 test.describe('Storm Chamber on a phone', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, reducedMotion: 'reduce' });
