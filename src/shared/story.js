@@ -362,6 +362,8 @@ export function createLabels(container, camera, { avoid = [] } = {}) {
     },
     update(delta, width, height) {
       const margin = 8;
+      // Read the panels before writing any styles, so this costs no extra layout.
+      const interface_ = avoid.length ? panels() : [];
       const visible = [];
       for (const item of items) {
         item.opacity += (item.target - item.opacity) * Math.min(1, delta * 3);
@@ -373,8 +375,9 @@ export function createLabels(container, camera, { avoid = [] } = {}) {
         projected.copy(anchor).project(camera);
         const x = (projected.x * 0.5 + 0.5) * width;
         const y = (-projected.y * 0.5 + 0.5) * height;
-        // Behind the camera, or pointing at something off screen.
-        const behind = projected.z > 1 || x < 0 || y < 0 || x > width || y > height;
+        // Behind the camera, or pointing at something off screen or under the interface.
+        const behind = projected.z > 1 || x < 0 || y < 0 || x > width || y > height
+          || interface_.some((r) => x > r.x0 && x < r.x1 && y > r.y0 && y < r.y1);
         item.element.style.visibility = behind ? 'hidden' : 'visible';
         item.element.style.opacity = String(item.opacity);
         item.element.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
@@ -386,7 +389,7 @@ export function createLabels(container, camera, { avoid = [] } = {}) {
       // that clears the interface and the labels already placed. A label with
       // no room at all stays hidden this frame.
       visible.sort((a, b) => a.item.rank - b.item.rank);
-      const taken = visible.length ? panels() : [];
+      const taken = [...interface_];
       for (const { item, x, y } of visible) {
         item.width ||= item.element.offsetWidth;
         item.height ||= item.text.offsetHeight;

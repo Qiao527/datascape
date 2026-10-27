@@ -42,9 +42,13 @@ const quality = {
   max: FIXED_DPR ?? Math.min(window.devicePixelRatio, 1.5),
   min: 0.6,
   dpr: FIXED_DPR ?? Math.min(window.devicePixelRatio, 1.5),
-  time: 0,
-  frames: 0,
+  deltas: [],
+  total: 0,
   cooldown: 2,
+  // A pixel ratio that dropped frames is not tried again for a while.
+  ceiling: Infinity,
+  ceilingFor: 0,
+  calm: 0,
   march: 1
 };
 renderer.setPixelRatio(quality.dpr);
@@ -549,19 +553,42 @@ function createSky(sunDirection) {
 // ---------------------------------------------------------------------------
 // Loop
 
+/**
+ * Trades resolution for a steady frame rate. Every second it counts the frames
+ * that missed the display's interval (taken as at least 1/60 s). Missing more
+ * than 5% steps the pixel ratio down and keeps it below that level for 30 s;
+ * three clean seconds in a row step it back up. An average alone cannot see
+ * this: under vsync, a third of frames at 33 ms still averages under 1/36 s.
+ */
 function adaptQuality(rawDelta) {
   if (FIXED_DPR) return;
-  quality.time += rawDelta;
-  quality.frames += 1;
   quality.cooldown -= rawDelta;
-  if (quality.time < 1) return;
-  const average = quality.time / quality.frames;
-  quality.time = 0;
-  quality.frames = 0;
+  quality.ceilingFor -= rawDelta;
+  if (quality.ceilingFor <= 0) quality.ceiling = Infinity;
+  quality.deltas.push(rawDelta);
+  quality.total += rawDelta;
+  if (quality.total < 1) return;
+  const deltas = quality.deltas;
+  const sorted = [...deltas].sort((a, b) => a - b);
+  const interval = Math.max(sorted[Math.floor(sorted.length / 4)], 1 / 60);
+  const missed = deltas.filter((d) => d > interval * 1.5).length / deltas.length;
+  const average = quality.total / deltas.length;
+  deltas.length = 0;
+  quality.total = 0;
   if (quality.cooldown > 0) return;
   let next = quality.dpr;
-  if (average > 1 / 36 && quality.dpr > quality.min) next = Math.max(quality.min, quality.dpr * 0.82);
-  else if (average < 1 / 58 && quality.dpr < quality.max) next = Math.min(quality.max, quality.dpr * 1.12);
+  if ((missed > 0.05 || average > 1 / 36) && quality.dpr > quality.min) {
+    quality.ceiling = quality.dpr * 0.99;
+    quality.ceilingFor = 30;
+    quality.calm = 0;
+    next = Math.max(quality.min, quality.dpr * 0.85);
+  } else if (missed === 0) {
+    quality.calm += 1;
+    if (quality.calm >= 3) {
+      quality.calm = 0;
+      next = Math.min(quality.max, quality.ceiling, quality.dpr * 1.1);
+    }
+  } else quality.calm = 0;
   quality.march = average > 1 / 30 && quality.dpr <= quality.min + 0.01 ? 0.75 : 1;
   if (Math.abs(next - quality.dpr) > 0.01) {
     quality.dpr = next;

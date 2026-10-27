@@ -92,21 +92,50 @@ Commit City and PSR B1919+21 have smoke tests in the same suite.
 
 ## Performance
 
-Measured on Apple M1 in Chrome (ANGLE Metal) at 1440 × 900 with a device scale factor of 2:
+All figures are from Apple M1 in Chrome (ANGLE Metal), 1440 × 900 at device scale factor 2, on the
+production build.
 
-| | median frame | p95 | dropped |
-|---|---|---|---|
-| With vsync, adaptive quality (what visitors get), every chapter | 16.7 ms | 17.6 ms | ≤ 1 in 240 |
-| Without vsync, pixel ratio 1 | 3.1–4.0 ms | ≤ 6 ms | |
-| Without vsync, pixel ratio 1.5 (the default cap) | 6.7–13.2 ms | 15–35 ms | |
+**Raw cost, vsync off, fixed pixel ratio (`?dpr=`):**
+
+| pixel ratio | mean frame | p95 |
+|---|---|---|
+| 1 | 3.1–4.0 ms | ≤ 6 ms |
+| 1.5 (the default cap) | 6.7–13.2 ms | 15–35 ms |
+
+**What visitors get: vsync on, adaptive quality.** These are frames dropped in 10 s, measured after
+8 s of settling, over two runs:
+
+| chapter | old loop (average frame time) | current loop (missed frames) |
+|---|---|---|
+| prologue, volume | 0 | 0 |
+| reflectivity | 54–65 of ≈ 540 (≈ 11 %), p95 33 ms | 9–22 of ≈ 590 (2–4 %), p95 18.7 ms |
+| tornado | 147–149 of 394 (37 %, ≈ 39 fps), p95 50 ms | 9–11 of ≈ 590 (≈ 2 %), p95 18.6 ms |
+
+The recovered loop lowered the pixel ratio only when the *average* frame time passed 1/36 s. Under
+vsync, a run where a third of frames take 33 ms still averages about 22 ms. The loop therefore
+settled at a pixel ratio of 1.23–1.5 and dropped 20–37 % of frames indefinitely, as a per-second
+trace showed.
+
+The current loop works differently:
+
+- It counts the frames that miss the display interval (at least 1/60 s). If more than 5 % miss in a
+  second, it steps the pixel ratio down by 15 %.
+- It keeps the ratio below the level that failed for 30 s.
+- It steps back up after three clean seconds.
+
+Heavy chapters therefore run at a pixel ratio of about 1.0–1.3 instead of 1.5. About every 30 s,
+when the ceiling expires, a one-second probe upward costs a few frames.
 
 JavaScript allocates 0.7–1.4 MB/s while the scene runs. The prologue is highest, because the beam
 line rebuilds its buffer every frame. That causes at most about one minor garbage collection per
 second, with no visible effect on frame pacing.
 
 The volume is ray-marched in one pass. A 4 × 4 × 4 occupancy grid lets the march skip empty space.
-Sunlight and sky light are precomputed once on the CPU, because the sun does not move. When frames
-run slow, the page lowers its pixel ratio (down to 0.6) and coarsens the ray-march step.
+Sunlight and sky light are precomputed once on the CPU, because the sun does not move. At the lowest
+pixel ratio (0.6), the page also coarsens the ray-march step when frames still run slow.
+
+CI renders WebGL on the CPU with SwiftShader at `?dpr=0.5`. The browser suite takes 16–20 minutes on
+GitHub's 2-vCPU runners.
 
 ## Limitations
 
