@@ -1,79 +1,154 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <title>Datascape · 把 2D 图表变成 3D 场景</title>
-    <meta name="description" content="把熟悉的 2D 图表变成可以走进去的 3D 场景：GitHub 贡献之城、音乐驱动的脉冲星山脊，以及一次真实雷达体扫里的风暴。" />
-    <link rel="stylesheet" href="/src/shared/base.css" />
-    <link rel="stylesheet" href="/src/home.css" />
+    <title>Datascape · The Hidden Dimension</title>
+    <meta name="description" content="Six familiar charts, each opened into the dimension it flattened: a weather radar scan, the phase diagram of water, an ECG, a tide gauge, a GitHub calendar and a pulsar plot, in 3D." />
+    <meta name="theme-color" content="#0b0b0d" />
+    <script type="module" src="/src/home.js"></script>
   </head>
   <body>
     <main class="home">
       <header class="home-header">
-        <p class="eyebrow">DATASCAPE</p>
-        <h1>把 2D 图表<br />变成 3D 场景</h1>
-        <p class="lede">每个作品都从一张熟悉的平面图出发，把数据变成可以绕着看、可以互动的空间。</p>
+        <p class="eyebrow">The Hidden Dimension</p>
+        <h1>Datascape</h1>
+        <p class="lede">Every chart here is flat because something was folded away: height, density, time, the ground under the water. Each piece starts from a chart you have seen before, built from real measurements, and opens it back into the space it came from.</p>
       </header>
 
-      <section class="cards">
-        <a class="card card-skyline" href="/skyline.html">
-          <div class="card-art" aria-hidden="true">
-            <span style="--h: 30%"></span><span style="--h: 62%"></span><span style="--h: 44%"></span>
-            <span style="--h: 88%"></span><span style="--h: 20%"></span><span style="--h: 70%"></span>
-            <span style="--h: 52%"></span><span style="--h: 36%"></span><span style="--h: 78%"></span>
-            <span style="--h: 26%"></span><span style="--h: 58%"></span><span style="--h: 40%"></span>
-          </div>
-          <div class="card-body">
-            <p class="card-from">GitHub 贡献日历 → 夜晚的城市</p>
-            <h2>Commit City</h2>
-            <p>输入任意 GitHub 用户名，一年的提交记录拔地而起，每一天是一栋亮着灯的楼。</p>
-          </div>
-        </a>
-
-        <a class="card card-pulsar" href="/pulsar.html">
-          <svg class="card-art card-art-lines" viewBox="0 0 200 120" aria-hidden="true">
-            <path d="M0 52 L74 52 Q82 50 88 40 T98 24 T108 38 T118 30 T128 52 L200 52" />
-            <path d="M0 64 L76 64 Q84 62 90 50 T100 30 T110 48 T120 40 T130 64 L200 64" />
-            <path d="M0 76 L72 76 Q80 74 86 60 T96 44 T104 62 T114 50 T124 76 L200 76" />
-            <path d="M0 88 L75 88 Q82 86 88 70 T98 50 T108 72 T118 64 T128 88 L200 88" />
-            <path d="M0 100 L70 100 Q80 98 85 80 T95 60 T105 85 T115 70 T125 100 L200 100" />
-          </svg>
-          <div class="card-body">
-            <p class="card-from">脉冲星堆叠折线图 → 会随音乐起伏的山脊</p>
-            <h2>PSR B1919+21</h2>
-            <p>向那张著名唱片封面致敬：上传一首歌或打开麦克风，频谱化作一道道向远方流去的白色山脊。</p>
-          </div>
-        </a>
-
-        <a class="card card-storm" href="/storm.html">
-          <svg class="card-art card-art-storm" viewBox="0 0 200 120" aria-hidden="true">
-            <defs>
-              <radialGradient id="storm-core" cx="0.55" cy="0.45" r="0.6">
-                <stop offset="0" stop-color="#f1e6d2" />
-                <stop offset="0.35" stop-color="#e8b66e" stop-opacity="0.9" />
-                <stop offset="1" stop-color="#ece8e1" stop-opacity="0" />
-              </radialGradient>
-            </defs>
-            <ellipse cx="138" cy="62" rx="40" ry="34" fill="url(#storm-core)" opacity="0.75" />
-            <g class="beams">
-              <path d="M14 104 L196 99" /><path d="M14 104 L196 94" /><path d="M14 104 L196 88" />
-              <path d="M14 104 L196 81" /><path d="M14 104 L196 72" /><path d="M14 104 L196 62" />
-              <path d="M14 104 L196 50" /><path d="M14 104 L196 35" /><path d="M14 104 L190 16" />
-              <path d="M14 104 L160 6" /><path d="M14 104 L124 4" /><path d="M14 104 L96 4" />
-              <path d="M14 104 L74 4" /><path d="M14 104 L56 4" />
-            </g>
-            <path class="ground" d="M0 104 Q100 101 200 104" />
-            <circle cx="14" cy="104" r="2.2" fill="#e8b66e" />
-          </svg>
-          <div class="card-body">
-            <p class="card-from">气象雷达图 → 一个装着风暴的立体空间</p>
-            <h2>Storm Chamber</h2>
-            <p>2013 年 5 月 18 日，堪萨斯 Rozel 龙卷触地前 13 分钟的一次真实雷达体扫：平面雷达图展开成 14 层扫描锥面，再填成一整块可以剖开的风暴。</p>
-          </div>
-        </a>
+      <section aria-labelledby="stories-title">
+        <h2 class="section-title" id="stories-title">Stories <span>Guided, in chapters, from public scientific data</span></h2>
+        <ul class="cards">
+          <li>
+            <a class="card" href="/storm.html">
+              <svg class="card-art" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <defs>
+                  <radialGradient id="art-storm" cx="0.5" cy="0.5" r="0.5">
+                    <stop offset="0" stop-color="#f1e6d2" />
+                    <stop offset="0.45" stop-color="#e8b66e" stop-opacity="0.75" />
+                    <stop offset="1" stop-color="#ece8e1" stop-opacity="0" />
+                  </radialGradient>
+                </defs>
+                <ellipse cx="226" cy="88" rx="62" ry="48" fill="url(#art-storm)" opacity="0.8" />
+                <g class="art-lines">
+                  <path d="M22 158 L316 152" /><path d="M22 158 L316 145" /><path d="M22 158 L316 137" />
+                  <path d="M22 158 L316 127" /><path d="M22 158 L316 115" /><path d="M22 158 L316 100" />
+                  <path d="M22 158 L316 82" /><path d="M22 158 L316 58" /><path d="M22 158 L300 22" />
+                  <path d="M22 158 L246 12" /><path d="M22 158 L192 10" /><path d="M22 158 L150 10" />
+                  <path d="M22 158 L116 10" /><path d="M22 158 L88 10" />
+                </g>
+                <path class="art-ground" d="M0 158 Q160 153 320 158" />
+                <circle cx="22" cy="158" r="3" class="art-accent" />
+              </svg>
+              <div class="card-body">
+                <p class="card-from">Weather radar map → the storm it was measured on</p>
+                <h3>Storm Chamber</h3>
+                <p>One volume scan of the Dodge City radar, thirteen minutes before the 2013 Rozel tornado: fourteen cones of measurement, filled into a box of sky you can cut open.</p>
+                <p class="card-meta"><span>8 chapters</span><span>NOAA NEXRAD Level II</span></p>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a class="card" href="/water.html">
+              <svg class="card-art" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <path class="art-fill" d="M74 170 C82 120 86 80 92 20 L300 20 L300 70 C230 78 160 108 92 120 Z" />
+                <g class="art-lines">
+                  <path d="M40 170 C70 150 84 132 92 120" />
+                  <path d="M92 120 C160 108 230 78 268 50" />
+                  <path d="M92 120 C88 80 84 50 80 20" />
+                </g>
+                <path class="art-dash" d="M20 120 L300 120" />
+                <circle cx="92" cy="120" r="3.5" class="art-accent" />
+                <circle cx="268" cy="50" r="3.5" class="art-ink" />
+              </svg>
+              <div class="card-body">
+                <p class="card-from">Phase diagram → the surface that casts it</p>
+                <h3>The Shadow of Water</h3>
+                <p>The textbook diagram of ice, liquid and vapor is a shadow. This is the object that casts it: every state of water in pressure, temperature and density.</p>
+                <p class="card-meta"><span>8 chapters</span><span>IAPWS-95 via CoolProp</span></p>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a class="card" href="/heart.html">
+              <svg class="card-art" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <g class="art-grid">
+                  <path d="M0 45 H320 M0 90 H320 M0 135 H320 M64 0 V180 M128 0 V180 M192 0 V180 M256 0 V180" />
+                </g>
+                <path class="art-trace" d="M0 100 L44 100 Q50 92 56 100 L74 100 L80 108 L88 36 L96 124 L102 100 L128 100 Q142 82 156 100 L172 100 Q178 92 184 100 L202 100 L208 108 L216 36 L224 124 L230 100 L256 100 Q270 82 284 100 L320 100" />
+                <circle cx="216" cy="36" r="3" class="art-accent" />
+              </svg>
+              <div class="card-body">
+                <p class="card-from">12-lead ECG → the loop of the heart's vector</p>
+                <h3>The Electric Heart</h3>
+                <p>Twelve traces on red paper are projections of one moving point. Fold time away and each heartbeat becomes a loop in space, ten beats from a healthy heart.</p>
+                <p class="card-meta"><span>8 chapters</span><span>PTB Diagnostic ECG, PhysioNet</span></p>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a class="card" href="/tides.html">
+              <svg class="card-art" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <path class="art-fill" d="M0 132 C40 128 70 110 110 104 C150 98 170 80 200 78 C240 74 280 60 320 52 L320 180 L0 180 Z" />
+                <path class="art-water" d="M0 116 L320 116" />
+                <path class="art-trace" d="M0 60 C20 30 40 30 60 60 C80 90 100 90 120 60 C140 30 160 30 180 60 C200 90 220 90 240 60 C260 30 280 30 300 60 L320 76" />
+                <circle cx="60" cy="60" r="3" class="art-accent" />
+              </svg>
+              <div class="card-body">
+                <p class="card-from">Tide gauge curve → the shore it floods</p>
+                <h3>Between Tides</h3>
+                <p>A month of measured sea level at Eastport, Maine, carried sideways onto the surveyed ground of the South Lubec flats, where seven meters of tide uncover square kilometers of seabed.</p>
+                <p class="card-meta"><span>8 chapters</span><span>NOAA CO-OPS · CUDEM</span></p>
+              </div>
+            </a>
+          </li>
+        </ul>
       </section>
+
+      <section aria-labelledby="instruments-title">
+        <h2 class="section-title" id="instruments-title">Instruments <span>Bring your own data: a GitHub account, a song</span></h2>
+        <ul class="cards">
+          <li>
+            <a class="card card-skyline" href="/skyline.html">
+              <div class="card-art card-art-bars" aria-hidden="true">
+                <span style="--h: 30%"></span><span style="--h: 62%"></span><span style="--h: 44%"></span>
+                <span style="--h: 88%"></span><span style="--h: 20%"></span><span style="--h: 70%"></span>
+                <span style="--h: 52%"></span><span style="--h: 36%"></span><span style="--h: 78%"></span>
+                <span style="--h: 26%"></span><span style="--h: 58%"></span><span style="--h: 40%"></span>
+              </div>
+              <div class="card-body">
+                <p class="card-from">GitHub contribution calendar → a city at night</p>
+                <h3>Commit City</h3>
+                <p>Type any GitHub username and a year of contributions rises as a city, one lit building a day, or as a glowing contour terrain.</p>
+                <p class="card-meta"><span>Interactive</span><span>GitHub contributions</span></p>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a class="card card-pulsar" href="/pulsar.html">
+              <svg class="card-art card-art-ridges" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <path d="M0 62 L118 62 Q130 60 138 46 T154 26 T170 44 T186 34 T202 62 L320 62" />
+                <path d="M0 82 L122 82 Q134 80 142 64 T158 40 T174 60 T190 50 T206 82 L320 82" />
+                <path d="M0 102 L116 102 Q128 100 136 82 T152 60 T166 82 T182 68 T198 102 L320 102" />
+                <path d="M0 122 L120 122 Q130 120 140 100 T156 74 T172 98 T188 88 T204 122 L320 122" />
+                <path d="M0 142 L112 142 Q126 140 134 118 T150 92 T166 120 T182 102 T198 142 L320 142" />
+              </svg>
+              <div class="card-body">
+                <p class="card-from">Stacked pulsar plot → ridges driven by music</p>
+                <h3>PSR B1919+21</h3>
+                <p>A tribute to the most famous plot in radio astronomy. Play a song, open the microphone or start the built-in synth, and its spectrum flows away as white ridges.</p>
+                <p class="card-meta"><span>Interactive</span><span>Your music</span></p>
+              </div>
+            </a>
+          </li>
+        </ul>
+      </section>
+
+      <footer class="home-footer">
+        <p>Built with Three.js and Vite, without a framework. Every number on screen comes from the source it cites; each piece's “About the data” panel says how it was made.</p>
+        <p><a href="https://github.com/Qiao527/datascape">Source on GitHub</a></p>
+      </footer>
     </main>
   </body>
 </html>
