@@ -13,7 +13,7 @@ export default defineConfig({
   testDir: 'tests/e2e',
   timeout: ci ? 240_000 : 60_000,
   expect: { timeout: ci ? 30_000 : 10_000 },
-  fullyParallel: false,
+  fullyParallel: true, // tests are independent, so shards split by test; workers stay at 1
   workers: 1,
   retries: ci ? 1 : 0,
   reporter: ci ? [['list'], ['html', { open: 'never' }]] : 'list',

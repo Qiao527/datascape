@@ -22,9 +22,15 @@ jobs:
       - run: npm run build
 
   e2e:
-    name: Browser tests (Chromium, SwiftShader WebGL)
+    name: Browser tests ${{ matrix.shard }}/2 (Chromium, SwiftShader WebGL)
     needs: test
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        # WebGL runs on the CPU here, so the suite is split across machines
+        # rather than across workers on one machine.
+        shard: [1, 2]
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -33,11 +39,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      - run: npm run test:e2e -- --shard=${{ matrix.shard }}/2
       - uses: actions/upload-artifact@v7
         if: failure()
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.shard }}
           path: |
             playwright-report/
             test-results/

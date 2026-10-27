@@ -134,8 +134,8 @@ The volume is ray-marched in one pass. A 4 × 4 × 4 occupancy grid lets the mar
 Sunlight and sky light are precomputed once on the CPU, because the sun does not move. At the lowest
 pixel ratio (0.6), the page also coarsens the ray-march step when frames still run slow.
 
-CI renders WebGL on the CPU with SwiftShader at `?dpr=0.5`. The browser suite takes 16–20 minutes on
-GitHub's 2-vCPU runners.
+CI renders WebGL on the CPU with SwiftShader at `?dpr=0.5`. On GitHub's 2-vCPU runners the browser suite
+took 16–20 minutes in one job, so it is split across two runners.
 
 ## Limitations
 
