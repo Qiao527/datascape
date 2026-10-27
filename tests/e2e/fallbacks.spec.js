@@ -51,3 +51,13 @@ test('recovers after the GPU context is lost and restored', async ({ page }) => 
   expect(after.bright).toBeGreaterThan(before.bright * 0.5);
   expect(Math.abs(after.mean - before.mean)).toBeLessThan(10);
 });
+
+test.describe('without JavaScript', () => {
+  test.use({ javaScriptEnabled: false });
+
+  test('it explains what the page needs', async ({ page }) => {
+    await page.goto('/storm.html');
+    await expect(page.locator('.webgl-error')).toContainText('Turn JavaScript on');
+    await expect(page.locator('#loader')).toBeHidden();
+  });
+});

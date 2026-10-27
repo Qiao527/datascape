@@ -100,6 +100,10 @@ Measured on Apple M1 in Chrome (ANGLE Metal) at 1440 × 900 with a device scale 
 | Without vsync, pixel ratio 1 | 3.1–4.0 ms | ≤ 6 ms | |
 | Without vsync, pixel ratio 1.5 (the default cap) | 6.7–13.2 ms | 15–35 ms | |
 
+JavaScript allocates 0.7–1.4 MB/s while the scene runs. The prologue is highest, because the beam
+line rebuilds its buffer every frame. That causes at most about one minor garbage collection per
+second, with no visible effect on frame pacing.
+
 The volume is ray-marched in one pass. A 4 × 4 × 4 occupancy grid lets the march skip empty space.
 Sunlight and sky light are precomputed once on the CPU, because the sun does not move. When frames
 run slow, the page lowers its pixel ratio (down to 0.6) and coarsens the ray-march step.
