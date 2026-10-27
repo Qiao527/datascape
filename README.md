@@ -1,100 +1,147 @@
 # Datascape
 
+**The Hidden Dimension** — six familiar charts, each opened back into the dimension it flattened.
+
 [![CI](https://github.com/Qiao527/datascape/actions/workflows/ci.yml/badge.svg)](https://github.com/Qiao527/datascape/actions/workflows/ci.yml)
+[![Data reproducibility](https://github.com/Qiao527/datascape/actions/workflows/data.yml/badge.svg)](https://github.com/Qiao527/datascape/actions/workflows/data.yml)
 
-把熟悉的 2D 图表变成可以绕着看、可以互动的 3D 场景。Vite + Three.js，没有前端框架。
+Every chart on a page is flat because something was folded away: height, density, time, the
+ground under the water. Each piece here starts from a chart you have seen before, built from real
+measurements, and opens it into the space it came from. Three.js and Vite, no framework.
 
-| 页面 | 原来的 2D 图 | 变成 |
-|---|---|---|
-| `skyline.html` · Commit City | GitHub 贡献日历 | 一座夜晚的城市（或一片等高线地形），每一天是一栋楼 |
-| `pulsar.html` · PSR B1919+21 | 脉冲星堆叠折线图（那张著名唱片封面） | 随音乐起伏、向远方流去的白色山脊 |
-| `storm.html` · Storm Chamber | 气象雷达回波图 | 2013 年 Rozel 龙卷触地前 13 分钟的一次真实雷达体扫：14 层扫描锥面，以及由它们填成的、可以剖开的风暴（英文页面） |
+## The pieces
 
-## 运行
+| Piece | The flat chart | What it opens into | Data |
+|---|---|---|---|
+| [Storm Chamber](storm.html) | Weather radar map | The fourteen cones of one radar volume scan, filled into a box of sky that can be cut open, 13 minutes before the 2013 Rozel tornado | NOAA NEXRAD Level II (KDDC); NCEI Storm Events |
+| [The Shadow of Water](water.html) | Phase diagram of water | The pressure–temperature–density surface that casts it | IAPWS-95 (CoolProp), IAPWS R10-06 and R14-08 (iapws) |
+| [The Electric Heart](heart.html) | 12-lead ECG | The loop the heart's electrical vector draws in space | PTB Diagnostic ECG Database (PhysioNet) |
+| [Between Tides](tides.html) | Tide gauge curve | A month of measured tide laid over the surveyed ground it floods | NOAA CO-OPS 8410140; NOAA NCEI CUDEM |
+| [Commit City](skyline.html) | GitHub contribution calendar | A city at night, or a contour terrain, one building a day | GitHub, for any username |
+| [PSR B1919+21](pulsar.html) | The stacked pulsar plot | White ridges driven by music, a microphone or a built-in synth | Your audio |
+
+The four stories are guided in chapters, with a "Hidden dimension" control that folds each scene
+back to its flat chart. Every figure on screen comes from the data it cites, and each piece has an
+"About the data" panel. [`docs/storm-chamber.md`](docs/storm-chamber.md) documents Storm Chamber's
+method, verification and limitations in full.
+
+## Run it
+
+Requires Node.js 20 or later (CI uses the version in `.nvmrc`). The stories need WebGL 2.
 
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm run build      # 输出到 dist/
-npm run preview    # 预览构建结果（同样带 /api/contributions）
+npm run build      # static site in dist/
+npm run preview    # serve dist/, with /api/contributions
 ```
 
-需要 Node.js 20+（CI 使用 `.nvmrc` 里的 22）。Storm Chamber 需要支持 WebGL 2 的浏览器。
+Commit City reads the calendar through `/api/contributions?user=<name>&year=<year>`, because a
+browser cannot fetch it directly. With a `GITHUB_TOKEN` (any read-only token) the server uses
+GitHub's GraphQL API. Without one it parses the public `github.com/users/<name>/contributions`
+page, which needs no setup but can break when GitHub changes the page. Results are cached in memory
+for ten minutes.
 
-## 测试
+## Tests
 
 ```bash
-npm test               # 单元测试（Vitest）：雷达数据完整性、波束几何、叙事里每个数字的来源
-npm run test:e2e       # 浏览器测试（Playwright）：构建后在 Chrome 里走完所有章节、交互与无障碍检查
+npm run lint       # ESLint
+npm test           # Vitest: data integrity, beam geometry, physical reference values, every figure in the prose
+npm run test:e2e   # Playwright on the production build: every chapter, interactions, layout, accessibility
 ```
 
-本地的浏览器测试会用已安装的 Google Chrome（真实 GPU）。CI 里用 Playwright 自带的 Chromium，WebGL 由 SwiftShader 软件渲染。
+The unit tests read the committed data the way the pages do. They check:
 
-Storm Chamber 的数据可以从 NOAA 原始文件逐字节复现：
+- the layout and encoding of every binary;
+- the 4/3-Earth radar beam model against the textbook formula and the Python generator;
+- the gridded storm against the sweeps it came from;
+- the water surface's critical and triple points against IAPWS;
+- the ECG's heart rate against its own R peaks;
+- the tide data against its own summary;
+- that every number in Storm Chamber's text is derived from the data.
+
+Locally the browser tests drive your installed Google Chrome with the real GPU. In CI they run on
+Chromium with WebGL in SwiftShader, split across two runners. They check:
+
+- every chapter of every story, by keyboard and from deep links;
+- the readouts and that frames are actually drawn;
+- scene labels on phone and laptop layouts;
+- fallbacks without WebGL, `DecompressionStream` or JavaScript, and recovery from a lost GPU
+  context;
+- axe-core accessibility on all seven pages.
+
+## Reproduce the data
+
+Everything in `public/data/` is generated by the scripts in `scripts/` and can be rebuilt byte for
+byte from public sources:
 
 ```bash
-python -m venv .venv && .venv/bin/pip install -r scripts/storm/requirements.txt
-PYTHON=.venv/bin/python scripts/storm/check_reproducible.sh
+python3.12 -m venv .venv && .venv/bin/pip install -r scripts/requirements.txt
+PYTHON=.venv/bin/python scripts/check_reproducible.sh               # all four stories
+PYTHON=.venv/bin/python scripts/check_reproducible.sh storm tides   # or some of them
 ```
 
-数据来源、处理方法、验证结果和已知局限见 [`docs/storm-chamber.md`](docs/storm-chamber.md)。
+The script downloads about 300 MB of sources: the radar volume, the PTB record and two CUDEM tiles.
+Set `DATASCAPE_CACHE=<dir>` to keep them between runs. It checks each source against the SHA-256 it
+had when the data were made, reruns the unmodified generators, and compares every output with the
+committed file. CI does the same whenever a generator or the data change, and weekly.
 
-### GitHub 数据
-
-浏览器不能直接拿到贡献日历，所以由服务端接口 `/api/contributions?user=<用户名>&year=<年份>` 获取：
-
-- 设置了环境变量 `GITHUB_TOKEN`（任意只读 token）时，走 GitHub 官方 GraphQL API。
-- 没有 token 时，解析 `github.com/users/<name>/contributions` 公开页面。不需要任何配置，但 GitHub 改版时可能失效。
-
-结果在服务端内存里缓存 10 分钟。
-
-## 结构
+## How it is built
 
 ```text
-index.html, skyline.html, pulsar.html, storm.html   入口页面
-server/contributions.js                 获取并解析贡献数据（Node 与 Workers 通用）
-functions/api/contributions.js          Cloudflare Pages Function 适配
-vite.config.js                          多页面构建 + 开发服务器上的 /api 中间件
-src/shared/
-  base.css, post.js                     渲染器、后期（MSAA + Bloom）、基础样式
-  story.js, dimension.js, fonts.js,     章节卡片、相机轨道、场景标签、2D↔3D 维度滑杆、自托管字体
-  series.css                            （与 The Hidden Dimension 系列共用）
-src/skyline/
-  data.js          日历 → 网格坐标、统计（总数、最长连续等）
-  city.js          InstancedMesh 楼群：窗户、楼顶光、升起动画全在 shader 里
-  terrain.js       高斯叠加的地形 + 发光等高线
-  environment.js   天空、星星、反光地面、浮尘、刻字底座
-  main.js          界面、悬停提示、截图、相机
-src/pulsar/
-  ridges.js        环形缓冲浮点纹理 + 黑色遮挡面 + 屏幕空间粗线
-  shaping.js       合成脉冲信号 / 对数频谱 → 一行高度
-  audio.js         内置合成器、上传文件、麦克风三种来源
-  demoSynth.js     Web Audio 合成的 124 BPM 演示循环
-src/storm/
-  data.js          解压 storm.bin，CPU 端按体素 / 扫描门查值
-  beam.js          4/3 地球半径波束模型（JS 与 GLSL 同一套公式）
-  sweeps.js        14 层扫描锥面，最低一层同时是平面雷达图
-  volume.js        体渲染：光线步进 + 预计算的阳光 / 天光 + 空域跳过
-  chamber.js       边框、高度标尺、剖面、扫描中的波束、龙卷路径
-  ground.js        距离圈、方位线、风暴投影
-  palette.js       烟雾配色与 NWS 标准配色、图例
-  chapters.js      八个章节的文字与镜头
-  sound.js         随回波强度变化的雨声
-scripts/storm/
-  generate_storm.py        NEXRAD Level II → public/data/storm/
-  check_reproducible.sh    重新生成并逐字节比对
-tests/unit, tests/e2e      Vitest 与 Playwright 测试
+index.html, storm.html, water.html,   one page per piece; Vite builds them as a multi-page app
+heart.html, tides.html,
+skyline.html, pulsar.html
+src/shared/        renderer and post-processing, the chapter card and camera rig, scene labels,
+                   the dimension control, the About panel, self-hosted fonts, series styles
+src/storm/         radar beam model, sweeps, ray-marched volume with precomputed sunlight, section
+src/water/         IAPWS surface, coexistence walls, processes, the diagrams it casts
+src/heart/         ECG paper, vectorcardiogram trace and its shadows
+src/tides/         terrain, water plane, tide timeline and recorder
+src/skyline/       instanced city, contour terrain, plinth, hover and snapshot
+src/pulsar/        ring-buffer ridges, audio sources, the demo synth
+server/            contribution calendar fetch and parse (runs in Node and Workers)
+functions/         Cloudflare Pages Function: /api/contributions
+scripts/           Python generators for public/data/, and the reproducibility check
+tests/unit/        Vitest
+tests/e2e/         Playwright
 ```
 
-## 部署（Cloudflare Pages）
+Storm Chamber adapts its resolution to keep frames on time. It counts frames that miss the
+display's interval and trades pixel ratio for a steady 60 fps (measurements are in the Storm
+Chamber notes).
 
-构建命令 `npm run build`，输出目录 `dist`，Node 版本取自 `.nvmrc`。`functions/` 目录会被自动识别为 `/api/contributions` 接口。建议在项目环境变量里设置 `GITHUB_TOKEN`，避免公开页面被限流。`public/_headers` 让带哈希的构建产物长期缓存，雷达数据缓存一天。
+## Deploy
 
-上线前可以在本地用 Cloudflare 的运行时检查构建结果（含 `functions/` 接口、`_headers` 与 Pages 的无 `.html` 后缀地址），再把整套浏览器测试指向它：
+The site is static, plus one Cloudflare Pages Function:
+
+- **Build command:** `npm run build`
+- **Output directory:** `dist`
+- **Node:** the version in `.nvmrc`
+- **API:** `functions/` serves `/api/contributions`.
+- **Environment:** set `GITHUB_TOKEN` (a fine-grained token with read-only access to public
+  repositories is enough) to avoid GitHub's limits on page scraping.
+- **Caching:** `public/_headers` makes hashed assets immutable and caches the data for a day.
+
+To check a build under the Pages runtime before deploying, or a deployed preview:
 
 ```bash
-npm run build
-npx wrangler pages dev dist --port 8788
-BASE_URL=http://localhost:8788 npm run test:e2e     # 也可以指向 Pages 的预览地址
+npm run build && npx wrangler pages dev dist --port 8788
+BASE_URL=http://localhost:8788 npm run test:e2e
 ```
 
+## Sources and credits
+
+- **Radar:** NOAA NEXRAD Level II, KDDC, 19 May 2013 00:04:55 UTC, from the NOAA Open Data
+  Dissemination archive (public domain). The tornado record is NOAA NCEI Storm Events, event
+  457695.
+- **Water:** IAPWS-95 via [CoolProp](http://www.coolprop.org/) 8.0. Ice Ih (R10-06) and the
+  sublimation and melting curves (R14-08) via [iapws](https://github.com/jjgomera/iapws).
+- **ECG:** PTB Diagnostic ECG Database 1.0.0, record patient122/s0312lre (Bousseljot, Kreiseler and
+  Schnabel, 1995), via PhysioNet (Goldberger et al., *Circulation* 101(23), 2000). Licensed under the
+  Open Data Commons Attribution License v1.0.
+- **Tides:** NOAA CO-OPS station 8410140, Eastport, Maine, verified 6-minute water levels and
+  predictions, September 2024. Ground from the NOAA NCEI Continuously Updated DEM (CUDEM), 1/9
+  arc-second topobathy (public domain).
+- **Type:** Instrument Serif, Inter and JetBrains Mono (SIL Open Font License), self-hosted via
+  Fontsource.
