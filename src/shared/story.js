@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-// Shared building blocks for the pieces of "The Hidden Dimension": eased
+// Shared building blocks for the Datascape pieces ("The Hidden Dimension"): eased
 // values, a camera rig that flies along orbits, and the chapter card.
 
 export const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;

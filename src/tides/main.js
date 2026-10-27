@@ -7,6 +7,7 @@ import { fontsReady } from '../shared/fonts.js';
 import { createComposer, createRenderer } from '../shared/post.js';
 import { createDimensionControl } from '../shared/dimension.js';
 import { MAX_DELTA, Tween, createCameraRig, createLabels, createStory, deg, lerp, reducedMotion } from '../shared/story.js';
+import { createAbout } from '../shared/about.js';
 import { CHAPTERS } from './chapters.js';
 import { UNIT_M, createSiteModel } from './model.js';
 import { createRecorder } from './recorder.js';
@@ -316,13 +317,6 @@ async function toggleSound() {
   button.textContent = sound.on ? 'Sound on' : 'Sound off';
 }
 
-function toggleAbout(force) {
-  const panel = document.querySelector('#about-panel');
-  const open = force ?? panel.hidden;
-  panel.hidden = !open;
-  document.querySelector('#about').setAttribute('aria-expanded', String(open));
-}
-
 // ---------------------------------------------------------------------------
 // Build
 
@@ -436,8 +430,7 @@ function build({ meta, heights, observed, predicted }) {
     }
   });
 
-  document.querySelector('#about-panel button').addEventListener('click', () => toggleAbout(false));
-  document.querySelector('#about').addEventListener('click', () => toggleAbout());
+  createAbout();
   document.querySelector('#sound').addEventListener('click', toggleSound);
 
   story = createStory({ chapters: CHAPTERS, onEnter: enterChapter, extraFor });

@@ -10,6 +10,7 @@ import { fontsReady } from '../shared/fonts.js';
 import { createComposer, createRenderer } from '../shared/post.js';
 import { createDimensionControl } from '../shared/dimension.js';
 import { MAX_DELTA, Tween, createCameraRig, createLabels, createStory, deg, lerp, reducedMotion } from '../shared/story.js';
+import { createAbout } from '../shared/about.js';
 import { CHAPTERS } from './chapters.js';
 import { PAPER, createPaper, createTwelveLead } from './paper.js';
 import { createSampleTexture, createTrace } from './trace.js';
@@ -302,8 +303,7 @@ function build({ meta, xyz, twelve, median }) {
   labels.add('plane-horizontal', { title: 'Horizontal plane', anchor: new THREE.Vector3(loopOrigin.x + max.x * loopScale, floorY, loopOrigin.z + max.z * loopScale + 1) });
   labels.add('plane-sagittal', { title: 'Sagittal plane', anchor: new THREE.Vector3(wallX, loopOrigin.y + max.y * loopScale + 0.8, loopOrigin.z + 2), side: 'left' });
 
-  document.querySelector('#about-panel button').addEventListener('click', () => toggleAbout(false));
-  document.querySelector('#about').addEventListener('click', () => toggleAbout());
+  createAbout();
   document.querySelector('#sound').addEventListener('click', toggleSound);
 
   story = createStory({ chapters: CHAPTERS, onEnter: enterChapter, extraFor });
@@ -426,13 +426,6 @@ function thump(stretch) {
     osc.start(now + delay);
     osc.stop(now + delay + length + 0.05);
   }
-}
-
-function toggleAbout(force) {
-  const panel = document.querySelector('#about-panel');
-  const open = force ?? panel.hidden;
-  panel.hidden = !open;
-  document.querySelector('#about').setAttribute('aria-expanded', String(open));
 }
 
 // ---------------------------------------------------------------------------

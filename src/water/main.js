@@ -12,9 +12,10 @@ import { createProcessPlayer } from './process.js';
 import { createLabels } from './labels.js';
 import { createSound } from './sound.js';
 import { CHAPTERS, PRESETS } from './chapters.js';
-import { BASE_Y, POSE_B, logPToZ, logRhoToY, tToX, xToT, yToLogRho, zToLogP } from './mapping.js';
+import { BASE_Y, POSE_B, logPToZ, tToX, xToT, yToLogRho, zToLogP } from './mapping.js';
 import { formatDensity, formatPressure, formatTemperature, phaseName, trim } from './format.js';
 import { createDimensionControl } from '../shared/dimension.js';
+import { createAbout } from '../shared/about.js';
 
 const BACKGROUND = new THREE.Color(0x0b0b0d);
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -36,9 +37,7 @@ const ui = {
   readout: document.querySelector('#readout'),
   tooltip: document.querySelector('#tooltip'),
   labels: document.querySelector('#labels'),
-  sound: document.querySelector('#sound'),
-  about: document.querySelector('#about'),
-  aboutPanel: document.querySelector('#about-panel')
+  sound: document.querySelector('#sound')
 };
 
 // ---------------------------------------------------------------------------
@@ -571,14 +570,7 @@ ui.sound.addEventListener('click', async () => {
   ui.sound.setAttribute('aria-pressed', String(on));
   ui.sound.textContent = on ? 'Sound on' : 'Sound off';
 });
-ui.about.addEventListener('click', () => {
-  ui.aboutPanel.hidden = !ui.aboutPanel.hidden;
-  ui.about.setAttribute('aria-expanded', String(!ui.aboutPanel.hidden));
-});
-ui.aboutPanel.querySelector('button').addEventListener('click', () => {
-  ui.aboutPanel.hidden = true;
-  ui.about.setAttribute('aria-expanded', 'false');
-});
+createAbout();
 
 function onResize() {
   const width = stage.clientWidth;

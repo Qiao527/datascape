@@ -7,6 +7,7 @@ import { fontsReady } from '../shared/fonts.js';
 import { createComposer, createRenderer } from '../shared/post.js';
 import { createDimensionControl } from '../shared/dimension.js';
 import { MAX_DELTA, Tween, createCameraRig, createLabels, createStory, deg, reducedMotion } from '../shared/story.js';
+import { createAbout } from '../shared/about.js';
 import { CHAPTERS } from './chapters.js';
 import { loadStorm } from './data.js';
 import { beamHeight, slantForGround } from './beam.js';
@@ -407,23 +408,7 @@ function probe() {
 }
 
 // ---------------------------------------------------------------------------
-// About, sound
-
-function toggleAbout(force) {
-  const panel = document.querySelector('#about-panel');
-  const chip = document.querySelector('#about');
-  const open = force ?? panel.hidden;
-  if (open === !panel.hidden) return;
-  panel.hidden = !open;
-  chip.setAttribute('aria-expanded', String(open));
-  // Focus follows the panel in and back out to the chip that opened it.
-  if (open) panel.querySelector('.about-close').focus();
-  else if (panel.contains(document.activeElement) || document.activeElement === document.body) chip.focus();
-}
-
-window.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') toggleAbout(false);
-});
+// Sound
 
 async function toggleSound() {
   const button = document.querySelector('#sound');
@@ -505,8 +490,7 @@ function build(loaded) {
   legend = createLegend(document.querySelector('#legend'), meta);
   addLabels();
 
-  document.querySelector('#about-panel button').addEventListener('click', () => toggleAbout(false));
-  document.querySelector('#about').addEventListener('click', () => toggleAbout());
+  createAbout();
   document.querySelector('#sound').addEventListener('click', toggleSound);
 
   story = createStory({ chapters: CHAPTERS, onEnter: enterChapter, extraFor });
