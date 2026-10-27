@@ -10,7 +10,7 @@ test('home links to all three pieces', async ({ page }) => {
     await expect(page.locator(`a[href="${href}"] h2`)).toHaveText(name);
   }
   await page.locator('a[href="/storm.html"]').click();
-  await expect(page).toHaveURL(/storm\.html/);
+  await expect(page).toHaveURL(/\/storm(\.html)?(\?|#|$)/); // Pages serves clean URLs
   expect(errors).toEqual([]);
 });
 

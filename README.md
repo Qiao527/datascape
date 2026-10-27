@@ -89,3 +89,12 @@ tests/unit, tests/e2e      Vitest 与 Playwright 测试
 ## 部署（Cloudflare Pages）
 
 构建命令 `npm run build`，输出目录 `dist`，Node 版本取自 `.nvmrc`。`functions/` 目录会被自动识别为 `/api/contributions` 接口。建议在项目环境变量里设置 `GITHUB_TOKEN`，避免公开页面被限流。`public/_headers` 让带哈希的构建产物长期缓存，雷达数据缓存一天。
+
+上线前可以在本地用 Cloudflare 的运行时检查构建结果（含 `functions/` 接口、`_headers` 与 Pages 的无 `.html` 后缀地址），再把整套浏览器测试指向它：
+
+```bash
+npm run build
+npx wrangler pages dev dist --port 8788
+BASE_URL=http://localhost:8788 npm run test:e2e     # 也可以指向 Pages 的预览地址
+```
+

@@ -5,6 +5,9 @@ import { defineConfig, devices } from '@playwright/test';
 // Chrome with the real GPU; in CI the bundled Chromium renders WebGL with
 // SwiftShader, which is slow, so frame steps are allowed to be long (?maxdt).
 const ci = Boolean(process.env.CI);
+// BASE_URL points the suite at an already-running site (wrangler pages dev,
+// a Pages preview deployment) instead of building and previewing locally.
+const baseURL = process.env.BASE_URL;
 
 export default defineConfig({
   testDir: 'tests/e2e',
@@ -15,7 +18,7 @@ export default defineConfig({
   retries: ci ? 1 : 0,
   reporter: ci ? [['list'], ['html', { open: 'never' }]] : 'list',
   use: {
-    baseURL: 'http://localhost:4173',
+    baseURL: baseURL ?? 'http://localhost:4173',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     ...devices['Desktop Chrome'],
@@ -26,7 +29,7 @@ export default defineConfig({
       args: ci ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] : ['--ignore-gpu-blocklist']
     }
   },
-  webServer: {
+  webServer: baseURL ? undefined : {
     command: 'npm run build && npm run preview -- --port 4173 --strictPort',
     url: 'http://localhost:4173/storm.html',
     reuseExistingServer: !ci,
