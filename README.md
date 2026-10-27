@@ -2,6 +2,8 @@
 
 **The Hidden Dimension** — six familiar charts, each opened back into the dimension it flattened.
 
+**Live: [datascape-5of.pages.dev](https://datascape-5of.pages.dev)**
+
 [![CI](https://github.com/Qiao527/datascape/actions/workflows/ci.yml/badge.svg)](https://github.com/Qiao527/datascape/actions/workflows/ci.yml)
 [![Data reproducibility](https://github.com/Qiao527/datascape/actions/workflows/data.yml/badge.svg)](https://github.com/Qiao527/datascape/actions/workflows/data.yml)
 
