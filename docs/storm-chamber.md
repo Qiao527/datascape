@@ -46,14 +46,15 @@ The generator processes the data in this order:
 ### Reproducing the data
 
 ```bash
-python -m venv .venv && .venv/bin/pip install -r scripts/storm/requirements.txt
-PYTHON=.venv/bin/python scripts/storm/check_reproducible.sh
+python -m venv .venv && .venv/bin/pip install -r scripts/requirements.txt
+PYTHON=.venv/bin/python scripts/check_reproducible.sh storm
 ```
 
 The script runs the unmodified generator in a scratch directory. It then checks the downloaded source
 against the SHA-256 above, and checks that both outputs match the committed files byte for byte. On
 26 Oct 2026 the check passed with Python 3.12.13, MetPy 1.7.1, NumPy 2.5.4 and SciPy 1.18.1. CI
-repeats it whenever the generator or the data change (`.github/workflows/storm-data.yml`).
+repeats it for every piece whenever a generator or the data change, and weekly
+(`.github/workflows/data.yml`).
 
 ## What is verified, and how
 

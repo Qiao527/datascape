@@ -1,0 +1,9 @@
+# The versions that regenerate public/data/ byte for byte (Python 3.12),
+# checked by scripts/check_reproducible.sh.
+CoolProp==8.0.0
+iapws==1.5.5
+imagecodecs==2026.10.10
+MetPy==1.7.1
+numpy==2.5.4
+scipy==1.18.1
+tifffile==2026.10.15

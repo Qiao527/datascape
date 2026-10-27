@@ -3,15 +3,33 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { watchErrors } from './helpers.js';
 
-test('home links to all three pieces', async ({ page }) => {
+test('home links to all six pieces, in English', async ({ page }) => {
   const errors = watchErrors(page);
   await page.goto('/');
-  for (const [href, name] of [['/skyline.html', 'Commit City'], ['/pulsar.html', 'PSR B1919+21'], ['/storm.html', 'Storm Chamber']]) {
-    await expect(page.locator(`a[href="${href}"] h2`)).toHaveText(name);
-  }
+  await expect(page).toHaveTitle('Datascape · The Hidden Dimension');
+  await expect(page.locator('h1')).toHaveText('Datascape');
+  await expect(page.locator('.eyebrow')).toHaveText('The Hidden Dimension');
+  const pieces = [
+    ['/storm.html', 'Storm Chamber'],
+    ['/water.html', 'The Shadow of Water'],
+    ['/heart.html', 'The Electric Heart'],
+    ['/tides.html', 'Between Tides'],
+    ['/skyline.html', 'Commit City'],
+    ['/pulsar.html', 'PSR B1919+21']
+  ];
+  for (const [href, name] of pieces) await expect(page.locator(`a[href="${href}"] h3`)).toHaveText(name);
   await page.locator('a[href="/storm.html"]').click();
   await expect(page).toHaveURL(/\/storm(\.html)?(\?|#|$)/); // Pages serves clean URLs
   expect(errors).toEqual([]);
+});
+
+test('no page is left in Chinese', async ({ page }) => {
+  for (const path of ['/', '/storm.html', '/water.html', '/heart.html', '/tides.html', '/skyline.html', '/pulsar.html']) {
+    await page.goto(path);
+    expect(await page.getAttribute('html', 'lang'), path).toBe('en');
+    const text = await page.locator('body').innerText();
+    expect(text, path).not.toMatch(/[\u4e00-\u9fff]/);
+  }
 });
 
 test('home has no detectable accessibility violations', async ({ page }) => {
@@ -19,6 +37,16 @@ test('home has no detectable accessibility violations', async ({ page }) => {
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
 });
+
+for (const path of ['/skyline.html', '/pulsar.html']) {
+  test(`${path} has no detectable accessibility violations`, async ({ page }) => {
+    await page.route('**/api/contributions**', (route) => route.fulfill({ status: 404, json: { error: 'No GitHub user named test' } }));
+    await page.goto(path);
+    await page.waitForTimeout(1500);
+    const results = await new AxeBuilder({ page }).analyze();
+    expect(results.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  });
+}
 
 test('PSR B1919+21 starts and draws', async ({ page }) => {
   const errors = watchErrors(page);

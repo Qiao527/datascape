@@ -1,5 +1,0 @@
-# The versions that regenerate public/data/storm byte for byte
-# (checked by scripts/storm/check_reproducible.sh).
-metpy==1.7.1
-numpy==2.5.4
-scipy==1.18.1

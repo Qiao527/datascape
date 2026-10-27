@@ -1,0 +1,41 @@
+name: Data reproducibility
+
+# Regenerates every piece's data from its public sources (NOAA NEXRAD, IAPWS,
+# PhysioNet, NOAA CO-OPS and CUDEM) and checks the committed files are
+# byte-identical. Runs when generators or data change, weekly to catch
+# upstream changes, and on demand.
+on:
+  push:
+    paths:
+      - scripts/**
+      - public/data/**
+      - .github/workflows/data.yml
+  pull_request:
+    paths:
+      - scripts/**
+      - public/data/**
+      - .github/workflows/data.yml
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: scripts/requirements.txt
+      - run: python -m pip install -r scripts/requirements.txt
+      # About 300 MB of sources; their hashes live in the script, so it is the key.
+      - uses: actions/cache@v6
+        with:
+          path: ~/.cache/datascape
+          key: datascape-sources-${{ hashFiles('scripts/check_reproducible.sh') }}
+      - run: DATASCAPE_CACHE="$HOME/.cache/datascape" scripts/check_reproducible.sh
