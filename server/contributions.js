@@ -30,7 +30,7 @@ export class HttpError extends Error {
 export function parseQuery(searchParams) {
   const username = (searchParams.get('user') ?? '').trim();
   if (!USERNAME_PATTERN.test(username)) {
-    throw new HttpError(400, '用户名格式不正确');
+    throw new HttpError(400, 'That is not a valid GitHub username');
   }
 
   const rawYear = searchParams.get('year');
@@ -39,7 +39,7 @@ export function parseQuery(searchParams) {
     year = Number(rawYear);
     const currentYear = new Date().getUTCFullYear();
     if (!Number.isInteger(year) || year < FIRST_YEAR || year > currentYear) {
-      throw new HttpError(400, `年份必须在 ${FIRST_YEAR}–${currentYear} 之间`);
+      throw new HttpError(400, `The year must be between ${FIRST_YEAR} and ${currentYear}`);
     }
   }
   return { username, year };
@@ -80,7 +80,7 @@ export async function handleContributionsRequest(url, { token } = {}) {
     return { status: 200, body };
   } catch (error) {
     const status = error instanceof HttpError ? error.status : 502;
-    const message = error instanceof HttpError ? error.message : '获取 GitHub 数据失败';
+    const message = error instanceof HttpError ? error.message : 'Could not fetch the calendar from GitHub';
     if (!(error instanceof HttpError)) console.error('[contributions]', error);
     return { status, body: { error: message } };
   }
@@ -107,9 +107,9 @@ async function fetchViaProfilePage(username, range) {
   const response = await fetch(url, {
     headers: { 'User-Agent': 'datascape-contribution-city', Accept: 'text/html' }
   });
-  if (response.status === 404) throw new HttpError(404, `找不到 GitHub 用户 ${username}`);
-  if (response.status === 429) throw new HttpError(429, 'GitHub 请求太频繁，请稍后再试');
-  if (!response.ok) throw new HttpError(502, `GitHub 返回了 ${response.status}`);
+  if (response.status === 404) throw new HttpError(404, `No GitHub user named ${username}`);
+  if (response.status === 429) throw new HttpError(429, 'GitHub is rate-limiting requests. Try again in a minute.');
+  if (!response.ok) throw new HttpError(502, `GitHub responded with ${response.status}`);
 
   return parseCalendarHtml(await response.text());
 }
@@ -162,11 +162,11 @@ async function fetchViaGraphQL(username, range, token) {
     },
     body: JSON.stringify({ query, variables })
   });
-  if (!response.ok) throw new HttpError(502, `GitHub API 返回了 ${response.status}`);
+  if (!response.ok) throw new HttpError(502, `The GitHub API responded with ${response.status}`);
 
   const payload = await response.json();
   const calendar = payload.data?.user?.contributionsCollection?.contributionCalendar;
-  if (!calendar) throw new HttpError(404, `找不到 GitHub 用户 ${username}`);
+  if (!calendar) throw new HttpError(404, `No GitHub user named ${username}`);
 
   return calendar.weeks.flatMap((week) => week.contributionDays.map((day) => ({
     date: day.date,

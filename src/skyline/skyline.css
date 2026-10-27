@@ -81,7 +81,7 @@ body {
 .search button {
   padding: 0 14px;
   border-color: transparent;
-  background: #2ea043;
+  background: #238636; /* GitHub's button green; 4.6:1 with white */
   color: #fff;
   font-weight: 600;
   cursor: pointer;

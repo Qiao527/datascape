@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import '../shared/base.css';
 import './skyline.css';
 import { createComposer, createRenderer } from '../shared/post.js';
-import { buildGrid, describeDay, loadContributions, summarize } from './data.js';
+import { buildGrid, countOf, describeDay, loadContributions, shortDate, summarize } from './data.js';
 import { createCity } from './city.js';
 import { createTerrain } from './terrain.js';
 import { createDust, createFloor, createPlinth, createSky, createStars, PLINTH_HEIGHT } from './environment.js';
@@ -45,7 +45,7 @@ let renderer;
 try {
   renderer = createRenderer(stage);
 } catch (error) {
-  stage.innerHTML = '<p class="webgl-error">你的浏览器无法启动 WebGL，请开启硬件加速或换一个浏览器。</p>';
+  stage.innerHTML = '<p class="webgl-error">Your browser could not start WebGL. Turn on hardware acceleration or try another browser.</p>';
   throw error;
 }
 
@@ -106,7 +106,7 @@ const state = {
 async function generate(username, year) {
   const requestId = ++state.requestId;
   submitButton.disabled = true;
-  setStatus(`正在获取 @${username} 的贡献记录…`, 'loading');
+  setStatus(`Fetching contributions for @${username}…`, 'loading');
 
   try {
     const data = await loadContributions(username, year);
@@ -125,7 +125,7 @@ async function generate(username, year) {
 function buildWorld(data) {
   const grid = buildGrid(data.days);
   const stats = summarize(data.days);
-  const periodLabel = data.year ? `${data.year} 年` : `${data.from} — ${data.to}`;
+  const periodLabel = data.year ? String(data.year) : `${data.from} — ${data.to}`;
 
   disposeWorld();
 
@@ -175,9 +175,9 @@ function applyMode() {
 
 function populateYears() {
   const current = new Date().getFullYear();
-  const options = [new Option('过去一年', '')];
+  const options = [new Option('Last 12 months', '')];
   for (let year = current; year >= FIRST_YEAR; year -= 1) {
-    options.push(new Option(`${year} 年`, String(year)));
+    options.push(new Option(String(year), String(year)));
   }
   yearSelect.replaceChildren(...options);
 }
@@ -189,12 +189,12 @@ function setStatus(message, kind = '') {
 }
 
 function renderStats(stats, grid) {
-  const best = stats.best.count > 0 ? `${stats.best.count} 次 · ${stats.best.date}` : '—';
+  const best = stats.best.count > 0 ? `${stats.best.count.toLocaleString('en-US')} on ${shortDate(stats.best.date)}` : '—';
   const rows = [
-    ['总贡献', stats.total.toLocaleString('zh-CN')],
-    ['活跃天数', `${stats.activeDays} / ${grid.cells.length}`],
-    ['最长连续', `${stats.longestStreak} 天`],
-    ['最忙的一天', best]
+    ['Contributions', stats.total.toLocaleString('en-US')],
+    ['Active days', `${stats.activeDays} / ${grid.cells.length}`],
+    ['Longest streak', countOf(stats.longestStreak, 'day')],
+    ['Busiest day', best]
   ];
   statsElement.replaceChildren(...rows.map(([label, value]) => {
     const wrapper = document.createElement('div');

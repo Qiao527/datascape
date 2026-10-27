@@ -1,39 +1,41 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <title>PSR B1919+21 · 脉冲星山脊</title>
-    <meta name="description" content="向那张著名的脉冲星封面致敬：音乐的频谱化作一道道向远方流去的 3D 白色山脊。" />
+    <title>PSR B1919+21 · Datascape</title>
+    <meta name="description" content="A tribute to the famous pulsar plot: the spectrum of your music becomes white 3D ridges flowing into the distance." />
   </head>
   <body>
-    <div class="stage" id="stage"></div>
+    <main>
+      <div class="stage" id="stage"></div>
 
-    <header class="title">
-      <p class="title-name">PSR B1919+21</p>
-      <p class="title-sub" id="source">等待声音 · 正在播放脉冲星信号</p>
-    </header>
+      <header class="title">
+        <p class="title-name">PSR B1919+21</p>
+        <p class="title-sub" id="source">No sound yet · playing the pulsar signal</p>
+      </header>
 
-    <nav class="controls" aria-label="声音来源">
-      <button type="button" id="demo" aria-pressed="false">内置演示</button>
-      <label class="file-button">
-        上传音乐
-        <input type="file" id="file" accept="audio/*" />
-      </label>
-      <button type="button" id="mic" aria-pressed="false">麦克风</button>
-      <button type="button" id="pause" hidden>暂停</button>
-      <button type="button" id="stop" hidden>停止</button>
-      <label class="sensitivity">
-        <span>灵敏度</span>
-        <input type="range" id="sensitivity" min="0.4" max="2.2" step="0.05" value="1" />
-      </label>
-    </nav>
+      <nav class="controls" aria-label="Sound source">
+        <button type="button" id="demo" aria-pressed="false">Demo</button>
+        <label class="file-button">
+          Upload music
+          <input type="file" id="file" accept="audio/*" />
+        </label>
+        <button type="button" id="mic" aria-pressed="false">Microphone</button>
+        <button type="button" id="pause" hidden>Pause</button>
+        <button type="button" id="stop" hidden>Stop</button>
+        <label class="sensitivity">
+          <span>Sensitivity</span>
+          <input type="range" id="sensitivity" min="0.4" max="2.2" step="0.05" value="1" />
+        </label>
+      </nav>
 
-    <p class="status" id="status" role="status" hidden></p>
-    <p class="hint">拖动旋转 · 滚轮缩放 · 双击回到封面视角 · 空格暂停 · 可直接把音频拖进页面</p>
-    <div class="drop" id="drop" hidden><p>松开即可播放</p></div>
-    <a class="back-link" href="/">← 全部作品</a>
+      <p class="status" id="status" role="status" hidden></p>
+      <p class="hint">Drag to rotate · scroll to zoom · double-click for the cover view · space to pause · drop an audio file onto the page</p>
+      <div class="drop" id="drop" hidden><p>Release to play</p></div>
+      <a class="back-link" href="/">← Datascape</a>
+    </main>
 
     <script type="module" src="/src/pulsar/main.js"></script>
   </body>

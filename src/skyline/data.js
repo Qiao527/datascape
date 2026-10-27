@@ -1,5 +1,14 @@
-const WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-const MONTHS = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** "2026-10-26" -> "Oct 26". */
+export function shortDate(iso) {
+  const date = parseDate(iso);
+  return `${MONTHS[date.getUTCMonth()]} ${date.getUTCDate()}`;
+}
+
+/** "1 contribution", "1,204 contributions". */
+export const countOf = (n, noun) => `${n.toLocaleString('en-US')} ${noun}${n === 1 ? '' : 's'}`;
 
 export async function loadContributions(username, year) {
   const params = new URLSearchParams({ user: username });
@@ -9,10 +18,10 @@ export async function loadContributions(username, year) {
   try {
     response = await fetch(`/api/contributions?${params}`);
   } catch {
-    throw new Error('网络连接失败');
+    throw new Error('Could not reach the server. Check your connection.');
   }
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.error ?? `请求失败（${response.status}）`);
+  if (!response.ok) throw new Error(payload.error ?? `Request failed (${response.status})`);
   return payload;
 }
 
@@ -72,8 +81,8 @@ export function summarize(days) {
 
 export function describeDay(cell) {
   const weekday = WEEKDAYS[cell.weekday];
-  const count = cell.count === 0 ? '没有贡献' : `${cell.count.toLocaleString('zh-CN')} 次贡献`;
-  return { date: `${cell.date} ${weekday}`, count };
+  const count = cell.count === 0 ? 'No contributions' : countOf(cell.count, 'contribution');
+  return { date: `${weekday} ${cell.date}`, count };
 }
 
 function parseDate(iso) {

@@ -28,7 +28,7 @@ let renderer;
 try {
   renderer = createRenderer(stage);
 } catch (error) {
-  stage.innerHTML = '<p class="webgl-error">你的浏览器无法启动 WebGL，请开启硬件加速或换一个浏览器。</p>';
+  stage.innerHTML = '<p class="webgl-error">Your browser could not start WebGL. Turn on hardware acceleration or try another browser.</p>';
   throw error;
 }
 
@@ -111,10 +111,10 @@ async function run(action) {
 
 function syncControls() {
   const hasSource = engine.mode !== null;
-  sourceLabel.textContent = hasSource ? engine.label : '等待声音 · 正在播放脉冲星信号';
+  sourceLabel.textContent = hasSource ? engine.label : 'No sound yet · playing the pulsar signal';
   pauseButton.hidden = !hasSource || engine.mode === 'mic';
   stopButton.hidden = !hasSource;
-  pauseButton.textContent = engine.paused ? '继续' : '暂停';
+  pauseButton.textContent = engine.paused ? 'Resume' : 'Pause';
   demoButton.setAttribute('aria-pressed', String(engine.mode === 'demo'));
   micButton.setAttribute('aria-pressed', String(engine.mode === 'mic'));
   document.body.dataset.playing = String(engine.active);
@@ -163,7 +163,7 @@ window.addEventListener('drop', (event) => {
   dropOverlay.hidden = true;
   const file = [...event.dataTransfer.files].find((item) => item.type.startsWith('audio/'));
   if (file) run(() => engine.playFile(file));
-  else setStatus('请拖入音频文件（mp3、wav、m4a、ogg…）');
+  else setStatus('Drop an audio file (mp3, wav, m4a, ogg…)');
 });
 
 // Hide the interface while music plays and the mouse is still.

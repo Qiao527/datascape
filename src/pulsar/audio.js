@@ -36,7 +36,7 @@ export class AudioEngine {
     this.demo.output.connect(this.analyser);
     this.demo.output.connect(context.destination);
     this.demo.start();
-    this.setMode('demo', '内置演示 · 合成节拍 124 BPM');
+    this.setMode('demo', 'Built-in demo · synthesized beat, 124 BPM');
   }
 
   async playFile(file) {
@@ -52,16 +52,16 @@ export class AudioEngine {
     this.mediaElement.src = this.objectUrl;
     try {
       await this.mediaElement.play();
-    } catch (error) {
+    } catch {
       this.stop();
-      throw new Error('这个文件无法播放，换一个音频格式试试');
+      throw new Error('This file could not be played. Try another audio format.');
     }
     this.setMode('file', file.name.replace(/\.[^.]+$/, ''));
   }
 
   async useMicrophone() {
     if (!navigator.mediaDevices?.getUserMedia) {
-      throw new Error('当前浏览器不支持麦克风输入');
+      throw new Error('This browser does not support microphone input.');
     }
     const context = await this.prepare();
     try {
@@ -69,12 +69,12 @@ export class AudioEngine {
         audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
       });
     } catch {
-      throw new Error('没有获得麦克风权限');
+      throw new Error('Microphone access was not allowed.');
     }
     // Microphone goes to the analyser only, never to the speakers (no feedback).
     this.micSource = context.createMediaStreamSource(this.micStream);
     this.micSource.connect(this.analyser);
-    this.setMode('mic', '麦克风输入');
+    this.setMode('mic', 'Microphone');
   }
 
   async togglePause() {

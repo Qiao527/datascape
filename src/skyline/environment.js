@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
+import { countOf } from './data.js';
 
 export const PLINTH_HEIGHT = 2;
 export const PLINTH_MARGIN = 1;
@@ -253,7 +254,7 @@ function drawFrontLabel(grid, { username, periodLabel, total }, width, renderer)
   canvas.height = canvasHeight;
   const ctx = canvas.getContext('2d');
 
-  const font = '"Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif';
+  const font = '"Inter", system-ui, sans-serif';
   const mono = '"JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace';
 
   // Month labels, aligned with the week columns above.
@@ -284,7 +285,7 @@ function drawFrontLabel(grid, { username, periodLabel, total }, width, renderer)
 
   ctx.textAlign = 'right';
   ctx.font = `600 ${Math.round(unit * 0.5)}px ${font}`;
-  ctx.fillText(`${total.toLocaleString('zh-CN')} 次贡献`, canvasWidth - PLINTH_MARGIN * unit, baseline);
+  ctx.fillText(countOf(total, 'contribution'), canvasWidth - PLINTH_MARGIN * unit, baseline);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
