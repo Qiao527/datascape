@@ -1,6 +1,8 @@
 # Datascape
 
-**The Hidden Dimension** — six familiar charts, each opened back into the dimension it flattened.
+**The Hidden Dimension.** *Every chart is flat because something was folded away.*
+
+![Fourteen radar cones of the Dodge City scan, with the 2013 Rozel supercell painted on them.](public/media/og/home.jpg)
 
 **Live: [datascape-5of.pages.dev](https://datascape-5of.pages.dev)**
 
@@ -17,15 +19,20 @@ measurements, and opens it into the space it came from. Three.js and Vite, no fr
 |---|---|---|---|
 | [Storm Chamber](storm.html) | Weather radar map | The fourteen cones of one radar volume scan, filled into a box of sky that can be cut open, 13 minutes before the 2013 Rozel tornado | NOAA NEXRAD Level II (KDDC); NCEI Storm Events |
 | [The Shadow of Water](water.html) | Phase diagram of water | The pressure–temperature–density surface that casts it | IAPWS-95 (CoolProp), IAPWS R10-06 and R14-08 (iapws) |
-| [The Electric Heart](heart.html) | 12-lead ECG | The loop the heart's electrical vector draws in space | PTB Diagnostic ECG Database (PhysioNet) |
+| [The Electric Heart](heart.html) | 12-lead ECG, with the Frank XYZ leads recorded beside it | The loop the heart's electrical vector draws in space (from the Frank leads, not derived from the 12) | PTB Diagnostic ECG Database (PhysioNet) |
 | [Between Tides](tides.html) | Tide gauge curve | A month of measured tide laid over the surveyed ground it floods | NOAA CO-OPS 8410140; NOAA NCEI CUDEM |
 | [Commit City](skyline.html) | GitHub contribution calendar | A city at night, or a contour terrain, one building a day | GitHub, for any username |
 | [PSR B1919+21](pulsar.html) | The stacked pulsar plot | White ridges driven by music, a microphone or a built-in synth | Your audio |
 
 The four stories are guided in chapters, with a "Hidden dimension" control that folds each scene
-back to its flat chart. Every figure on screen comes from the data it cites, and each piece has an
-"About the data" panel. [`docs/storm-chamber.md`](docs/storm-chamber.md) documents Storm Chamber's
-method, verification and limitations in full.
+back to its flat chart. Each one can also go from its flat chart to its reveal in one step, and says
+on screen at that moment what is measured and what is drawn. Every figure on screen comes from the
+data it cites, and each piece has an "About the data" panel.
+
+- [How Storm Chamber was made](making.html): the case study, as a page of the site.
+- [`docs/storm-chamber.md`](docs/storm-chamber.md): its full method, verification and limitations.
+- [`docs/portfolio-polish.md`](docs/portfolio-polish.md): the audit, what changed and how it was measured.
+- [`docs/licenses.md`](docs/licenses.md): an inventory of what the site is built from and under what terms.
 
 ## Run it
 
@@ -66,11 +73,28 @@ Locally the browser tests drive your installed Google Chrome with the real GPU. 
 Chromium with WebGL in SwiftShader, split across two runners. They check:
 
 - every chapter of every story, by keyboard and from deep links;
+- the one-step reveal, and the Dimension Control by pointer and keyboard;
+- that the home page runs no WebGL and fetches a film only when asked, one at a time;
 - the readouts and that frames are actually drawn;
 - scene labels on phone and laptop layouts;
 - fallbacks without WebGL, `DecompressionStream` or JavaScript, and recovery from a lost GPU
   context;
-- axe-core accessibility on all seven pages.
+- axe-core accessibility on all eight pages.
+
+## Home page media
+
+The home page runs no WebGL. Its stills and films in `public/media/` are real frames of the pieces,
+captured by a script that steps each page with Playwright's fake clock and encodes video with Chrome's
+own `MediaRecorder`:
+
+```bash
+npm run build && npx vite preview --port 4173 --strictPort &
+node scripts/media/capture.mjs                 # everything
+node scripts/media/capture.mjs --only storm    # or some of it
+```
+
+It needs Google Chrome and `cwebp` and ImageMagick (`magick`). Run it again, then rebuild, whenever a
+piece's framing or light changes. Commit City's cover uses the public calendar of `torvalds`.
 
 ## Reproduce the data
 
@@ -91,9 +115,10 @@ committed file. CI does the same whenever a generator or the data change, and we
 ## How it is built
 
 ```text
-index.html, storm.html, water.html,   one page per piece; Vite builds them as a multi-page app
-heart.html, tides.html,
+index.html, making.html, storm.html, one page per piece; Vite builds them as a multi-page app
+water.html, heart.html, tides.html,
 skyline.html, pulsar.html
+src/home/          the home page's frame-scrubbed hero and on-demand film previews
 src/shared/        renderer and post-processing, the chapter card and camera rig, scene labels,
                    the dimension control, the About panel, self-hosted fonts, series styles
 src/storm/         radar beam model, sweeps, ray-marched volume with precomputed sunlight, section
@@ -104,7 +129,8 @@ src/skyline/       instanced city, contour terrain, plinth, hover and snapshot
 src/pulsar/        ring-buffer ridges, audio sources, the demo synth
 server/            contribution calendar fetch and parse (runs in Node and Workers)
 functions/         Cloudflare Pages Function: /api/contributions
-scripts/           Python generators for public/data/, and the reproducibility check
+scripts/           Python generators for public/data/, the reproducibility check, media capture
+public/media/      captured stills, films and social images
 tests/unit/        Vitest
 tests/e2e/         Playwright
 ```
@@ -131,6 +157,11 @@ To check a build under the Pages runtime before deploying, or a deployed preview
 npm run build && npx wrangler pages dev dist --port 8788
 BASE_URL=http://localhost:8788 npm run test:e2e
 ```
+
+## License
+
+There is no license for the repository's own code yet, so default copyright applies. The third-party
+terms are listed in [`docs/licenses.md`](docs/licenses.md).
 
 ## Sources and credits
 

@@ -151,3 +151,25 @@ describe('Between Tides', () => {
     expect(Math.max(...residual.map(Math.abs))).toBeLessThan(0.6);
   });
 });
+
+describe('what the prose claims', () => {
+  const read = (path) => readFileSync(new URL(path, root), 'utf8');
+
+  it('states the density step from liquid to ice at the triple point correctly', () => {
+    const { triple } = json('public/data/water/surface.json').points;
+    const percent = (1 - 10 ** triple.logRhoIce / 10 ** triple.logRhoLiquid) * 100;
+    expect(Math.round(percent)).toBe(8);
+    expect(read('src/water/chapters.js')).toContain(`only ${Math.round(percent)}% less dense`);
+  });
+
+  it('never says the 3D loop is derived from the 12 leads', () => {
+    const about = read('heart.html');
+    expect(about).toContain('not computed from the 12 leads');
+    expect(read('src/heart/chapters.js')).toContain('three leads an ordinary ECG does not');
+  });
+
+  it('calls the sea a level laid over ground, not a flood simulation', () => {
+    expect(read('tides.html')).toContain('not a flood simulation');
+    expect(read('tides.html')).toContain('assumes Eastport’s level applies here unchanged');
+  });
+});

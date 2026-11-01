@@ -3,6 +3,15 @@ import * as THREE from 'three';
 // Shared building blocks for the Datascape pieces ("The Hidden Dimension"): eased
 // values, a camera rig that flies along orbits, and the chapter card.
 
+/**
+ * What a story shows when it cannot run: its explanation, over a real frame of
+ * the scene, and no empty controls. Returns the markup for the stage.
+ */
+export function webglFallback(piece, message) {
+  document.body.classList.add('no-webgl');
+  return `<div class="webgl-fallback"><img src="/media/${piece}/cover-1600.webp" alt="A still of this piece, rendered on a machine with WebGL." /><p class="webgl-error">${message} Until then, this is a still of the scene.</p></div>`;
+}
+
 export const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 export const lerp = (a, b, t) => a + (b - a) * t;
 export const clamp01 = (x) => Math.min(1, Math.max(0, x));
@@ -205,7 +214,8 @@ export function createStory({ chapters, onEnter, onEvent = () => {}, extraFor = 
     goTo(index - 1);
   });
   window.addEventListener('keydown', (event) => {
-    if (event.target instanceof HTMLInputElement && event.target.type !== 'range') return;
+    // A focused slider keeps its arrow keys; the story moves on from anywhere else.
+    if (event.target instanceof HTMLInputElement) return;
     if (event.key === 'ArrowRight' || event.key === 'PageDown') goTo(index + 1);
     else if (event.key === 'ArrowLeft' || event.key === 'PageUp') goTo(index - 1);
     else return;
@@ -243,14 +253,14 @@ export function createStory({ chapters, onEnter, onEvent = () => {}, extraFor = 
     }, 260);
   }
 
-  function goTo(i, { instant = false } = {}) {
+  function goTo(i, { instant = false, reveal = false } = {}) {
     i = Math.max(0, Math.min(chapters.length - 1, i));
     if (i === index) return;
     index = i;
     time = 0;
     fired = new Set();
     const chapter = chapters[i];
-    onEnter(chapter, i, { instant });
+    onEnter(chapter, i, { instant, reveal });
     render(chapter, i);
     history.replaceState(null, '', `${location.search}#${chapter.key}`);
   }
@@ -265,6 +275,11 @@ export function createStory({ chapters, onEnter, onEvent = () => {}, extraFor = 
     },
     get time() {
       return time;
+    },
+    /** Goes straight to a chapter by key, as the long transformation. */
+    reveal(key) {
+      touched = true;
+      goTo(chapters.findIndex((chapter) => chapter.key === key), { reveal: true });
     },
     /** Starts at the chapter named in the URL hash, or the first. */
     start() {
@@ -287,6 +302,40 @@ export function createStory({ chapters, onEnter, onEvent = () => {}, extraFor = 
       if (chapter.autoAdvance && !touched && time >= chapter.autoAdvance) goTo(index + 1);
     }
   };
+}
+
+/**
+ * What a story chapter adds to its card for everyone: the one-step path to the
+ * piece's reveal, and a plain statement of what is measured and what is drawn.
+ * chapter.reveal is { label, to, time }; chapter.provenance is [[kind, text], ...].
+ */
+export function chapterNotes(chapter, reveal) {
+  const nodes = [];
+  if (chapter.reveal) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'reveal-button';
+    button.innerHTML = '<span></span><small></small>';
+    button.querySelector('span').textContent = chapter.reveal.label;
+    button.querySelector('small').textContent = chapter.reveal.time;
+    button.addEventListener('click', () => reveal(chapter.reveal.to));
+    nodes.push(button);
+  }
+  if (chapter.provenance) {
+    const list = document.createElement('dl');
+    list.className = 'provenance';
+    for (const [kind, text] of chapter.provenance) {
+      const row = document.createElement('div');
+      const term = document.createElement('dt');
+      term.textContent = kind;
+      const detail = document.createElement('dd');
+      detail.textContent = text;
+      row.append(term, detail);
+      list.appendChild(row);
+    }
+    nodes.push(list);
+  }
+  return nodes;
 }
 
 /**

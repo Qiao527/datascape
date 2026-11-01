@@ -8,6 +8,7 @@ export const CHAPTERS = [
     title: 'The Shadow of Water',
     body: 'Every chemistry textbook has this diagram: ice, liquid and vapor, divided by three lines that meet at a single point. It looks flat. It is not.',
     next: 'Begin',
+    reveal: { label: 'Raise the surface', to: 'wall', time: '7 s' },
     camera: 'topPT',
     rise: 0,
     pose: 0,
@@ -18,7 +19,7 @@ export const CHAPTERS = [
     key: 'shadow',
     kicker: '01',
     title: 'It is a shadow',
-    body: 'The diagram is cast straight down by a real object: the surface of every state water can be in. Across is temperature, back is pressure, and height is density, the mass packed into each cubic meter, on a logarithmic scale.',
+    body: 'The diagram is cast straight down by a real object: the surface of every stable state of water across this range. Across is temperature, back is pressure, and height is density, the mass packed into each cubic meter, on a logarithmic scale.',
     camera: 'rise',
     rise: 1,
     pose: 0,
@@ -35,6 +36,7 @@ export const CHAPTERS = [
     pose: 0,
     beam: 1,
     highlight: { boil: 1 },
+    provenance: [['Computed', 'IAPWS-95, IAPWS R10-06, R14-08'], ['Axes', 'temperature; log pressure; log density'], ['Unchanged', 'no value moved for the sake of the shape']],
     labels: ['liquid', 'vapor']
   },
   {
@@ -69,7 +71,7 @@ export const CHAPTERS = [
     key: 'triple',
     kicker: '05',
     title: 'Three phases, one line',
-    body: 'Where the walls meet, ice, liquid and vapor coexist along a single vertical line at 0.01 °C and 611.657 Pa. Seen end-on from above, the line is the triple point. Ice is only 9% less dense than water, so the step between them is too small to see.',
+    body: 'Where the walls meet, ice, liquid and vapor coexist along a single vertical line at 0.01 °C and 611.657 Pa. Seen end-on from above, the line is the triple point. Ice is only 8% less dense than water, so the step between them is too small to see.',
     camera: 'triple',
     rise: 1,
     pose: 0,

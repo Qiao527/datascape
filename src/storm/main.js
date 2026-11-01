@@ -6,7 +6,7 @@ import './storm.css';
 import { fontsReady } from '../shared/fonts.js';
 import { createComposer, createRenderer } from '../shared/post.js';
 import { createDimensionControl } from '../shared/dimension.js';
-import { MAX_DELTA, Tween, createCameraRig, createLabels, createStory, deg, reducedMotion } from '../shared/story.js';
+import { MAX_DELTA, Tween, chapterNotes, webglFallback, createCameraRig, createLabels, createStory, deg, reducedMotion } from '../shared/story.js';
 import { createAbout } from '../shared/about.js';
 import { CHAPTERS } from './chapters.js';
 import { loadStorm } from './data.js';
@@ -21,6 +21,9 @@ import { createSound } from './sound.js';
 const BACKGROUND = new THREE.Color(0x0a0a0b);
 const DEFAULT_VERT = 2;
 const SCAN_SPEED = 30; // seconds of the scan per second on screen
+// The reveal, map to chamber in one move, stops to look at the cones on the way:
+// they are what was measured; everything after them is interpolated.
+const REVEAL = { toCones: 3.6, hold: 0.9, toVolume: 3.8 };
 const params = new URLSearchParams(location.search);
 const FIXED_DPR = params.has('dpr') ? Number(params.get('dpr')) : null;
 
@@ -33,7 +36,7 @@ try {
   if (typeof DecompressionStream === 'undefined') throw new Error('DecompressionStream is not available');
   renderer = createRenderer(stage);
 } catch (error) {
-  stage.innerHTML = '<p class="webgl-error">This piece needs WebGL 2 and a current browser. Try another browser or turn on hardware acceleration.</p>';
+  stage.innerHTML = webglFallback('storm', 'This piece needs WebGL 2 and a current browser. Try another browser or turn on hardware acceleration.');
   loader.hidden = true;
   throw error;
 }
@@ -71,6 +74,12 @@ const rig = createCameraRig({ camera, controls, stage, offsetX: 0.11, offsetY: 0
 
 const { composer, resize: resizeComposer } = createComposer(renderer, scene, camera, null);
 
+// Taking the camera during the reveal ends the camera's part of it, not the storm's.
+controls.addEventListener('start', () => {
+  if (state.revealIn > 0) state.dim.set(1, 1.6);
+  state.revealIn = 0;
+});
+
 const timer = new THREE.Timer();
 timer.connect(document);
 
@@ -86,6 +95,7 @@ const state = {
   legend: false,
   readoutMode: null,
   scan: { active: false, time: 1e6, loop: true },
+  revealIn: 0,
   beamAz: 0,
   pointer: { x: 0, y: 0, over: false }
 };
@@ -150,16 +160,19 @@ function framing(key) {
     case 'tornado':
       return spec([44, 4, -45], 22, 84, 82);
     default:
-      return spec([46, 13, -54], -26, 76, 200);
+      // Low, looking up at it: the chamber should feel larger than the viewer.
+      return spec([46, 15, -54], -30, 83, 158);
   }
 }
 
 // ---------------------------------------------------------------------------
 // Story
 
-function enterChapter(chapter, index, { instant }) {
+function enterChapter(chapter, index, { instant, reveal }) {
   const t = (seconds) => (instant ? 0.01 : seconds);
-  state.dim.set(chapter.dim, t(chapter.dimDuration ?? 3));
+  const staged = reveal && !reducedMotion;
+  state.revealIn = staged ? REVEAL.toCones + REVEAL.hold : 0;
+  state.dim.set(staged ? 0.64 : chapter.dim, t(staged ? REVEAL.toCones : chapter.dimDuration ?? 3));
   state.data.set(chapter.data ?? 0, t(1.4));
   state.cut.set(chapter.cut ? 1 : 0, t(1.6));
   if (chapter.cut) state.cutKm.set(chapter.cut, t(2.4));
@@ -176,6 +189,7 @@ function enterChapter(chapter, index, { instant }) {
 
   const spec = framing(chapter.camera);
   if (instant) rig.jumpTo(spec);
+  else if (staged) rig.flyTo(framing('cones'), REVEAL.toCones + 0.3);
   else rig.flyTo(spec, chapter.key === 'cones' ? 5.5 : chapter.key === 'volume' ? 4.5 : 3.2);
 }
 
@@ -194,7 +208,8 @@ function toggle(text, get, set) {
 }
 
 function extraFor(chapter) {
-  if (!chapter.explore) return [];
+  const notes = chapterNotes(chapter, (key) => story.reveal(key));
+  if (!chapter.explore) return notes;
   const toggles = document.createElement('div');
   toggles.className = 'toggles';
   const replay = document.createElement('button');
@@ -242,14 +257,17 @@ function extraFor(chapter) {
     state.scan.time = 1e6;
     state.readoutMode = 'section';
   });
-  return [toggles, label];
+  return [...notes, toggles, label];
 }
 
 const dimension = createDimensionControl(document.querySelector('#dimension'), {
   caption: 'Hidden dimension · height',
-  onInput(value) {
+  stops: [[0, 'radar map'], [0.03, 'lifting onto the beam', false], [0.64, 'fourteen cones'], [0.68, 'filling the gaps', false], [1, 'interpolated volume']],
+  onInput(value, jump) {
     if (!state.ready) return;
-    state.dim.snap(value);
+    state.revealIn = 0;
+    if (jump) state.dim.set(value, 1.4);
+    else state.dim.snap(value);
     state.scan.active = false;
     state.scan.time = 1e6;
   }
@@ -422,7 +440,7 @@ async function toggleSound() {
 
 function addLabels() {
   labels = createLabels(document.querySelector('#labels'), camera, {
-    avoid: ['.masthead', '.topbar', '#chapter', '#readout', '#legend.is-visible', '#dimension']
+    avoid: ['.masthead', '.topbar', '#chapter', '#readout', '#legend.is-visible', '#dimension', '.dimension-stop']
   });
   const v3 = (x, y, z) => new THREE.Vector3(x, y, z);
   const f = meta.facts;
@@ -449,10 +467,10 @@ function addLabels() {
     className: 'scene-label-up'
   });
   labels.add('core', { title: `${f.maxDbz.toFixed(1)} dBZ`, detail: `strongest echo, ${f.maxDbzKm.toFixed(1)} km up`, anchor: () => v3(f.maxDbzXY[0], yOf(f.maxDbzKm), -f.maxDbzXY[1]) });
-  labels.add('hail', { title: '50 dBZ at 15 km', detail: 'hail, carried up by the updraft', anchor: () => v3(f.top50XY[0], yOf(f.top50Km), -f.top50XY[1]), side: 'left' });
+  labels.add('hail', { title: '50 dBZ at 15 km', detail: 'almost certainly hail', anchor: () => v3(f.top50XY[0], yOf(f.top50Km), -f.top50XY[1]), side: 'left' });
   labels.add('vault', {
     title: 'Weak-echo region',
-    detail: 'the updraft',
+    detail: 'read as the updraft',
     anchor: () => v3(f.vault.x, yOf(state.cutKm.value) + 0.05, -f.vault.y),
     className: 'scene-label-up'
   });
@@ -590,6 +608,13 @@ function animate(timestamp) {
 
   if (state.ready) {
     story.update(delta);
+    if (state.revealIn > 0) {
+      state.revealIn -= delta;
+      if (state.revealIn <= 0) {
+        state.dim.set(1, REVEAL.toVolume);
+        rig.flyTo(framing(story.chapter.camera), REVEAL.toVolume + 0.4);
+      }
+    }
     for (const key of ['dim', 'vert', 'data', 'cut', 'cutKm', 'tornado', 'beam']) state[key].update(delta);
     dimension.sync(state.dim.value);
     adaptQuality(rawDelta);

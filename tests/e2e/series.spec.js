@@ -6,7 +6,7 @@ import { watchErrors } from './helpers.js';
 
 const PIECES = {
   water: ['The Shadow of Water', 'It is a shadow', 'Every line is a wall', 'Boiling a kettle', 'The wall ends', 'Three phases, one line', 'Another shadow', 'Hold it yourself'],
-  heart: ['The Electric Heart', 'Twelve directions', 'Three are enough', 'The hidden dimension', 'One beat, slowly', 'Three shadows', 'No two alike', 'Hold the loop'],
+  heart: ['The Electric Heart', 'Twelve directions', 'Three more leads', 'The hidden dimension', 'One beat, slowly', 'Three shadows', 'No two alike', 'Hold the loop'],
   tides: ['Between Tides', 'A height, not a number', 'The ground beneath', 'Six hours', 'Spring and neap', 'Predicted, then measured', 'True scale', 'Hold the month']
 };
 

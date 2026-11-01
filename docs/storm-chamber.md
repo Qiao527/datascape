@@ -138,6 +138,48 @@ pixel ratio (0.6), the page also coarsens the ray-march step when frames still r
 CI renders WebGL on the CPU with SwiftShader at `?dpr=0.5`. On GitHub's 2-vCPU runners the browser suite
 took 16–20 minutes in one job, so it is split across two runners.
 
+### After the 2026-11 light changes
+
+The smoke became thinner (density 0.42, from 1.15), so rays march further before they saturate. Both
+builds were served from frozen copies and measured alternately, flipping the order each round, on the
+machine above. Raw data are in `docs/polish/perf/`.
+
+**What visitors get: vsync on, adaptive quality, 8 s settling, 10 s measured, 5 rounds.** Times are the
+median across rounds. The last column is the pixel ratio the loop settled on, in each round.
+
+| chapter | build | median | p95 | p99 | frames > 25 ms, each round (of ≈ 590) | pixel ratio |
+|---|---|---|---|---|---|---|
+| volume | before | 16.7 | 17.6 | 17.7 | 0, 0, 0, 0, 0 | 1.48–1.5 |
+| volume | after | 16.7 | 17.6 | 31.6 | 12, 0, 3, 7, 6 | 1.18–1.39 |
+| reflectivity | before | 16.7 | 17.6 | 33.3 | 8, 11, 8, 8, 9 | 1.18–1.39 |
+| reflectivity | after | 16.7 | 17.7 | 33.5 | 10, 10, 13, 12, 15 | 1.39 |
+| tornado | before | 16.7 | 17.6 | 33.4 | 11, 10, 8, 8, 9 | 1.18 |
+| tornado | after | 16.7 | 17.7 | 33.4 | 16, 20, 10, 12, 25 | 0.95–1.11 |
+| section | before | 16.7 | 17.7 | 33.4 | 1, 16, 14, 12, 12 | 0.95–1.11 |
+| section | after | 16.7 | 17.6 | 32.6 | 7, 2, 7, 7, 7 | 0.91–1.07 |
+
+**What the shader costs: vsync off, pixel ratio fixed at 1.5, 4 s settling, 6 s measured.** Stopped early: 5
+rounds of the old build and 4 of the new.
+
+| chapter | median, before → after | p95, before → after |
+|---|---|---|
+| volume | 15.5 → 20.1 ms | 33.8 → 37.3 ms |
+| reflectivity | 18.4 → 19.3 ms | 34.1 → 32.9 ms |
+| tornado | 25.6 → 29.1 ms | 43.8 → 67.2 ms |
+| section | 28.6 → 34.2 ms | 66.8 → 68.4 ms |
+
+**Reading them.** The regression in `volume` and `tornado` is real. The shader costs about 3.5–5.5 ms more
+per frame, or about 14–30 %. Adaptive quality absorbs most of it, so visitors keep 58–59 fps, and the price
+is mainly resolution: `volume` drops from about 1.5 to 1.2–1.4, `tornado` from 1.18 to about 1.0. `section`'s
+frame pacing looks better after only because it settled lower, and `reflectivity` is within noise: neither
+became cheaper, as an earlier, shorter run of two rounds suggested.
+
+**The cause and what was done.** Both palettes were being read at every step, one of them unused. Only the
+one on screen is read now, except during a cross-fade. Screenshots of `volume`, `tornado` and `reflectivity`
+are pixel-identical before and after that change (maximum channel difference 0 across 900,000 pixels), so it
+cannot have changed the picture. **Its speedup has not been measured:** the tables above predate it. Most of
+the remaining cost is the longer march through thinner smoke, which is what lets the core be seen, so it stays.
+
 ## Limitations
 
 - **Reflectivity is not cloud.** The radar sees raindrops, hail and snow, not cloud droplets. The
@@ -156,6 +198,10 @@ took 16–20 minutes in one job, so it is split across two runners.
   17.9 dBZ, which is one 0.3 dB step low. Fixing it would change the regenerated facts, so it is left
   as is. The same off-by-one step was fixed in the browser's "Echo ≥ 30 dBZ" slice readout.
 - **The lighting is a rendering choice.** The smoke shading uses the sun's real position at 7:05
-  p.m., but it is not a physical cloud simulation.
+  p.m., but it is not a physical cloud simulation. Amber in the smoke is a contour of the data, echo
+  past about 50 dBZ, and not light. Smoke density is not cloud density.
+- **The updraft is inferred.** Reflectivity does not measure wind. The chapter and label call the
+  weak-echo region the standard reading of an updraft, and the hail "almost certainly" hail, because
+  this piece has no dual-polarization classification behind those words.
 - **Places are approximate.** Places are positioned with a local equirectangular projection around
   the radar, which is accurate to well under 1 km within 150 km.

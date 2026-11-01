@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 
 /**
- * The room: a matte floor lit by a single overhead lamp, the visible beam,
- * and dust drifting through it. The floor shows the object's shadow as one of
+ * The room: a matte floor lit by a single overhead lamp and its visible beam.
+ * The floor shows the object's shadow as one of
  * two diagram textures, crossfaded with uDiagramMix.
  */
 export function createStage({ pt, pv, fog }) {
@@ -132,81 +132,18 @@ export function createStage({ pt, pv, fog }) {
   beam.name = 'beam';
   beam.renderOrder = 5;
 
-  // Dust in the light.
-  const count = 900;
-  const positions = new Float32Array(count * 3);
-  const seeds = new Float32Array(count);
-  for (let i = 0; i < count; i += 1) {
-    const height = Math.random();
-    const radius = (3 + height * -2 + 17 * (1 - height)) * Math.sqrt(Math.random()) * 0.9;
-    const angle = Math.random() * Math.PI * 2;
-    positions.set([Math.cos(angle) * radius, 0.5 + height * 30, Math.sin(angle) * radius], i * 3);
-    seeds[i] = Math.random();
-  }
-  const dustGeometry = new THREE.BufferGeometry();
-  dustGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  dustGeometry.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 1));
-  const dust = new THREE.Points(
-    dustGeometry,
-    new THREE.ShaderMaterial({
-      uniforms: {
-        uTime: { value: 0 },
-        uIntensity: { value: 0 },
-        uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) }
-      },
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-      vertexShader: /* glsl */ `
-        uniform float uTime;
-        uniform float uPixelRatio;
-        attribute float aSeed;
-        varying float vAlpha;
-        void main() {
-          vec3 p = position;
-          float t = uTime * (0.04 + aSeed * 0.05);
-          p.y = mod(p.y - t * 3.0, 30.0) + 0.5;
-          p.x += sin(uTime * 0.11 + aSeed * 40.0) * 0.8;
-          p.z += cos(uTime * 0.09 + aSeed * 23.0) * 0.8;
-          float radius = length(p.xz);
-          float cone = 3.2 + (21.0 - 3.2) * (1.0 - p.y / 46.0);
-          vAlpha = (1.0 - smoothstep(cone * 0.6, cone, radius)) * (0.3 + 0.7 * aSeed)
-            * (0.55 + 0.45 * sin(uTime * (0.6 + aSeed) + aSeed * 90.0));
-          vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
-          gl_PointSize = (1.0 + aSeed * 2.2) * uPixelRatio * (34.0 / -mvPosition.z);
-          gl_Position = projectionMatrix * mvPosition;
-        }
-      `,
-      fragmentShader: /* glsl */ `
-        uniform float uIntensity;
-        varying float vAlpha;
-        void main() {
-          float d = length(gl_PointCoord - 0.5);
-          float glow = exp(-d * d * 16.0);
-          gl_FragColor = vec4(vec3(1.0, 0.94, 0.84) * glow * vAlpha * 0.5 * uIntensity, 1.0);
-        }
-      `
-    })
-  );
-  dust.frustumCulled = false;
-  dust.name = 'dust';
-  dust.renderOrder = 6;
-
   const group = new THREE.Group();
-  group.add(floor, beam, dust);
+  group.add(floor, beam);
 
   return {
     object: group,
     uniforms,
     beam,
-    dust,
     update(elapsed) {
       beam.material.uniforms.uTime.value = elapsed;
-      dust.material.uniforms.uTime.value = elapsed;
     },
     setBeam(intensity) {
       beam.material.uniforms.uIntensity.value = intensity;
-      dust.material.uniforms.uIntensity.value = intensity;
     }
   };
 }

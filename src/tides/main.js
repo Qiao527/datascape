@@ -6,7 +6,7 @@ import './tides.css';
 import { fontsReady } from '../shared/fonts.js';
 import { createComposer, createRenderer } from '../shared/post.js';
 import { createDimensionControl } from '../shared/dimension.js';
-import { MAX_DELTA, Tween, createCameraRig, createLabels, createStory, deg, lerp, reducedMotion } from '../shared/story.js';
+import { MAX_DELTA, Tween, chapterNotes, webglFallback, createCameraRig, createLabels, createStory, deg, lerp, reducedMotion } from '../shared/story.js';
 import { createAbout } from '../shared/about.js';
 import { CHAPTERS } from './chapters.js';
 import { UNIT_M, createSiteModel } from './model.js';
@@ -24,7 +24,7 @@ let renderer;
 try {
   renderer = createRenderer(stage);
 } catch (error) {
-  stage.innerHTML = '<p class="webgl-error">This piece needs WebGL 2. Try another browser or turn on hardware acceleration.</p>';
+  stage.innerHTML = webglFallback('tides', 'This piece needs WebGL 2. Try another browser or turn on hardware acceleration.');
   loader.hidden = true;
   throw error;
 }
@@ -170,9 +170,9 @@ function portraitCamera(key, hd, recorderCenter) {
 // ---------------------------------------------------------------------------
 // Story
 
-function enterChapter(chapter, index, { instant }) {
+function enterChapter(chapter, index, { instant, reveal }) {
   const t = (seconds) => (instant ? 0.01 : seconds);
-  state.dim.set(chapter.dim, t(chapter.dimDuration ?? 2.6));
+  state.dim.set(chapter.dim, t(reveal ? 7 : chapter.dimDuration ?? 2.6));
   state.vert.set(chapter.vert ?? DEFAULT_VERT, t(3));
   state.reach.set(chapter.reach, t(chapter.reachDuration ?? 2.2));
   state.recorder.set(chapter.recorder ?? 0, t(1.8));
@@ -186,11 +186,12 @@ function enterChapter(chapter, index, { instant }) {
 
   const spec = CAMERAS(chapter.camera);
   if (instant) rig.jumpTo(spec);
-  else rig.flyTo(spec, chapter.key === 'ground' ? 5.6 : chapter.key === 'level' ? 4 : 3);
+  else rig.flyTo(spec, reveal ? 7.4 : chapter.key === 'ground' ? 5.6 : chapter.key === 'level' ? 4 : 3);
 }
 
 function extraFor(chapter) {
-  if (!chapter.explore) return [];
+  const notes = chapterNotes(chapter, (key) => story.reveal(key));
+  if (!chapter.explore) return notes;
   const label = document.createElement('p');
   label.className = 'extra-label';
   label.textContent = 'Hours per second';
@@ -216,7 +217,7 @@ function extraFor(chapter) {
     toggle('Prediction', () => state.forecast.to > 0.5, (on) => state.forecast.set(on ? 1 : 0, 1)),
     toggle('True scale', () => state.vert.to < 1.5, (on) => state.vert.set(on ? 1 : DEFAULT_VERT, 2.4))
   );
-  return [label, speeds, toggles];
+  return [...notes, label, speeds, toggles];
 }
 
 function toggle(text, get, set) {
@@ -235,9 +236,11 @@ function toggle(text, get, set) {
 
 const dimension = createDimensionControl(document.querySelector('#dimension'), {
   caption: 'Hidden dimension · ground',
-  onInput(value) {
+  stops: [[0, 'one section'], [0.5, 'section widening'], [1, 'the whole shore']],
+  onInput(value, jump) {
     if (!state.ready) return;
-    state.dim.snap(value);
+    if (jump) state.dim.set(value, 1.2);
+    else state.dim.snap(value);
     state.reach.set(1, 0.6);
     state.recorder.set(0, 0.6);
   }

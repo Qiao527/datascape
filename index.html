@@ -5,149 +5,175 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>Datascape · The Hidden Dimension</title>
-    <meta name="description" content="Six familiar charts, each opened into the dimension it flattened: a weather radar scan, the phase diagram of water, an ECG, a tide gauge, a GitHub calendar and a pulsar plot, in 3D." />
+    <meta name="description" content="Every chart is flat because something was folded away. A radar map, a phase diagram, an ECG and a tide curve, opened back into the space they flattened, from public scientific data." />
     <meta name="theme-color" content="#0b0b0d" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Datascape" />
+    <meta property="og:title" content="Datascape · The Hidden Dimension" />
+    <meta property="og:description" content="Every chart is flat because something was folded away. Four familiar charts, opened back into the space they flattened." />
+    <meta property="og:url" content="https://datascape-5of.pages.dev/" />
+    <meta property="og:image" content="https://datascape-5of.pages.dev/media/og/home.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Fourteen radar cones of the Dodge City scan, with the 2013 Rozel supercell painted on them." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preload" as="image" href="/media/hero/rest-1600.webp" imagesrcset="/media/hero/rest-900.webp 900w, /media/hero/rest-1600.webp 1600w" imagesizes="100vw" fetchpriority="high" />
     <script type="module" src="/src/home.js"></script>
   </head>
   <body>
     <main class="home">
-      <header class="home-header">
-        <p class="eyebrow">The Hidden Dimension</p>
-        <h1>Datascape</h1>
-        <p class="lede">Every chart here is flat because something was folded away: height, density, time, the ground under the water. Each piece starts from a chart you have seen before, built from real measurements, and opens it back into the space it came from.</p>
+      <header class="hero" id="hero">
+        <figure class="hero-media">
+          <img class="hero-frame" id="hero-a" src="/media/hero/rest-1600.webp" srcset="/media/hero/rest-900.webp 900w, /media/hero/rest-1600.webp 1600w" sizes="100vw" width="1600" height="1000" fetchpriority="high" alt="The fourteen cones of one weather-radar scan, seen from low over Kansas, with a line of storms painted on them." />
+          <img class="hero-frame hero-next" id="hero-b" alt="" hidden />
+        </figure>
+
+        <div class="hero-text">
+          <p class="eyebrow">The Hidden Dimension</p>
+          <h1>Datascape</h1>
+          <p class="thesis">Every chart is flat because something was folded away.</p>
+          <p class="lede">Four stories begin with a chart you already know: a radar map, a phase diagram, an ECG, a tide curve. Each opens into the space it flattened. Every surface is measured or computed from public scientific data.</p>
+          <ol class="hero-steps" id="hero-steps">
+            <li data-step="0"><span>Recognize</span> the chart</li>
+            <li data-step="1"><span>Transform</span> what it folded</li>
+            <li data-step="2"><span>Reveal</span> what was measured</li>
+          </ol>
+        </div>
+
+        <div class="hero-control" id="hero-control" hidden>
+          <p class="hero-control-caption">Hidden dimension · height</p>
+          <div class="hero-control-row">
+            <button type="button" class="hero-end" data-to="0" aria-label="2D: fold to the radar map">2D</button>
+            <label class="hero-track">
+              <span class="visually-hidden">Fold and unfold Storm Chamber, in frames rendered from the piece</span>
+              <input type="range" id="hero-range" min="0" max="1" step="0.001" />
+              <span class="hero-fill" id="hero-fill"></span>
+              <span class="hero-ticks" id="hero-ticks" aria-hidden="true"></span>
+            </label>
+            <button type="button" class="hero-end" data-to="1" aria-label="3D: unfold to the interpolated volume">3D</button>
+          </div>
+          <p class="hero-stop" id="hero-stop" aria-live="off"></p>
+        </div>
+
+        <p class="hero-source">
+          <a href="/storm.html#cones"><span>Storm Chamber</span> → enter this scene</a>
+          <small>Rendered frames · NOAA NEXRAD Level II, KDDC, May 18, 2013, 7:05 p.m.</small>
+        </p>
       </header>
 
-      <section aria-labelledby="stories-title">
-        <h2 class="section-title" id="stories-title">Stories <span>Guided, in chapters, from public scientific data</span></h2>
-        <ul class="cards">
-          <li>
-            <a class="card" href="/storm.html">
-              <svg class="card-art" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                <defs>
-                  <radialGradient id="art-storm" cx="0.5" cy="0.5" r="0.5">
-                    <stop offset="0" stop-color="#f1e6d2" />
-                    <stop offset="0.45" stop-color="#e8b66e" stop-opacity="0.75" />
-                    <stop offset="1" stop-color="#ece8e1" stop-opacity="0" />
-                  </radialGradient>
-                </defs>
-                <ellipse cx="226" cy="88" rx="62" ry="48" fill="url(#art-storm)" opacity="0.8" />
-                <g class="art-lines">
-                  <path d="M22 158 L316 152" /><path d="M22 158 L316 145" /><path d="M22 158 L316 137" />
-                  <path d="M22 158 L316 127" /><path d="M22 158 L316 115" /><path d="M22 158 L316 100" />
-                  <path d="M22 158 L316 82" /><path d="M22 158 L316 58" /><path d="M22 158 L300 22" />
-                  <path d="M22 158 L246 12" /><path d="M22 158 L192 10" /><path d="M22 158 L150 10" />
-                  <path d="M22 158 L116 10" /><path d="M22 158 L88 10" />
-                </g>
-                <path class="art-ground" d="M0 158 Q160 153 320 158" />
-                <circle cx="22" cy="158" r="3" class="art-accent" />
-              </svg>
-              <div class="card-body">
-                <p class="card-from">Weather radar map → the storm it was measured on</p>
+      <section class="stories" aria-labelledby="stories-title">
+        <div class="section-head">
+          <h2 id="stories-title">Stories</h2>
+          <p>Four guided pieces in eight chapters each. Every one starts flat, and every one can reach its reveal in one step or be read from the first page.</p>
+        </div>
+
+        <ul class="plates">
+          <li class="plate-wide">
+            <a class="plate" href="/storm.html" data-preview="/media/storm/reveal">
+              <div class="plate-media">
+                <img src="/media/storm/cover-1600.webp" srcset="/media/storm/cover-800.webp 800w, /media/storm/cover-1600.webp 1600w" sizes="(max-width: 900px) 100vw, 66vw" width="1600" height="1000" loading="lazy" decoding="async" alt="The storm as a pale volume inside a wireframe box, floating above the ground." />
+                <span class="plate-progress" aria-hidden="true"></span>
+              </div>
+              <div class="plate-body">
+                <p class="plate-number">Story I</p>
                 <h3>Storm Chamber</h3>
-                <p>One volume scan of the Dodge City radar, thirteen minutes before the 2013 Rozel tornado: fourteen cones of measurement, filled into a box of sky you can cut open.</p>
-                <p class="card-meta"><span>8 chapters</span><span>NOAA NEXRAD Level II</span></p>
+                <p class="plate-from">Weather radar map <span aria-hidden="true">→</span> the storm it was measured on</p>
+                <p class="plate-copy">One volume scan of the Dodge City radar, thirteen minutes before the 2013 Rozel tornado: fourteen cones of measurement, filled into a box of sky you can cut open.</p>
+                <p class="plate-meta">NOAA NEXRAD Level II · ray-marched volume</p>
               </div>
             </a>
           </li>
-          <li>
-            <a class="card" href="/water.html">
-              <svg class="card-art" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                <path class="art-fill" d="M74 170 C82 120 86 80 92 20 L300 20 L300 70 C230 78 160 108 92 120 Z" />
-                <g class="art-lines">
-                  <path d="M40 170 C70 150 84 132 92 120" />
-                  <path d="M92 120 C160 108 230 78 268 50" />
-                  <path d="M92 120 C88 80 84 50 80 20" />
-                </g>
-                <path class="art-dash" d="M20 120 L300 120" />
-                <circle cx="92" cy="120" r="3.5" class="art-accent" />
-                <circle cx="268" cy="50" r="3.5" class="art-ink" />
-              </svg>
-              <div class="card-body">
-                <p class="card-from">Phase diagram → the surface that casts it</p>
+          <li class="plate-major">
+            <a class="plate" href="/water.html" data-preview="/media/water/reveal">
+              <div class="plate-media">
+                <img src="/media/water/cover-1600.webp" srcset="/media/water/cover-800.webp 800w, /media/water/cover-1600.webp 1600w" sizes="(max-width: 900px) 100vw, 58vw" width="1600" height="1000" loading="lazy" decoding="async" alt="A scribed surface with a sheer wall through it, standing over the phase diagram it casts on the floor." />
+                <span class="plate-progress" aria-hidden="true"></span>
+              </div>
+              <div class="plate-body">
+                <p class="plate-number">Story II</p>
                 <h3>The Shadow of Water</h3>
-                <p>The textbook diagram of ice, liquid and vapor is a shadow. This is the object that casts it: every state of water in pressure, temperature and density.</p>
-                <p class="card-meta"><span>8 chapters</span><span>IAPWS-95 via CoolProp</span></p>
+                <p class="plate-from">Phase diagram <span aria-hidden="true">→</span> the surface that casts it</p>
+                <p class="plate-copy">The textbook diagram of ice, liquid and vapor is a shadow. This is the object that casts it: every stable state of water in pressure, temperature and density.</p>
+                <p class="plate-meta">IAPWS-95 via CoolProp · nothing exaggerated</p>
               </div>
             </a>
           </li>
-          <li>
-            <a class="card" href="/heart.html">
-              <svg class="card-art" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                <g class="art-grid">
-                  <path d="M0 45 H320 M0 90 H320 M0 135 H320 M64 0 V180 M128 0 V180 M192 0 V180 M256 0 V180" />
-                </g>
-                <path class="art-trace" d="M0 100 L44 100 Q50 92 56 100 L74 100 L80 108 L88 36 L96 124 L102 100 L128 100 Q142 82 156 100 L172 100 Q178 92 184 100 L202 100 L208 108 L216 36 L224 124 L230 100 L256 100 Q270 82 284 100 L320 100" />
-                <circle cx="216" cy="36" r="3" class="art-accent" />
-              </svg>
-              <div class="card-body">
-                <p class="card-from">12-lead ECG → the loop of the heart's vector</p>
+          <li class="plate-minor">
+            <a class="plate" href="/heart.html" data-preview="/media/heart/reveal">
+              <div class="plate-media">
+                <img src="/media/heart/cover-1600.webp" srcset="/media/heart/cover-800.webp 800w, /media/heart/cover-1600.webp 1600w" sizes="(max-width: 900px) 100vw, 40vw" width="1600" height="1000" loading="lazy" decoding="async" alt="A bright looping line in darkness: the path of the heart's electrical vector over several beats." />
+                <span class="plate-progress" aria-hidden="true"></span>
+              </div>
+              <div class="plate-body">
+                <p class="plate-number">Story III</p>
                 <h3>The Electric Heart</h3>
-                <p>Twelve traces on red paper are projections of one moving point. Fold time away and each heartbeat becomes a loop in space, ten beats from a healthy heart.</p>
-                <p class="card-meta"><span>8 chapters</span><span>PTB Diagnostic ECG, PhysioNet</span></p>
+                <p class="plate-from">12-lead ECG + Frank XYZ <span aria-hidden="true">→</span> the loop of the heart's vector</p>
+                <p class="plate-copy">Twelve traces on red paper, and three more leads recorded beside them. Plot those three against each other, fold time away, and each heartbeat becomes a loop in space.</p>
+                <p class="plate-meta">PTB Diagnostic ECG, PhysioNet</p>
               </div>
             </a>
           </li>
-          <li>
-            <a class="card" href="/tides.html">
-              <svg class="card-art" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                <path class="art-fill" d="M0 132 C40 128 70 110 110 104 C150 98 170 80 200 78 C240 74 280 60 320 52 L320 180 L0 180 Z" />
-                <path class="art-water" d="M0 116 L320 116" />
-                <path class="art-trace" d="M0 60 C20 30 40 30 60 60 C80 90 100 90 120 60 C140 30 160 30 180 60 C200 90 220 90 240 60 C260 30 280 30 300 60 L320 76" />
-                <circle cx="60" cy="60" r="3" class="art-accent" />
-              </svg>
-              <div class="card-body">
-                <p class="card-from">Tide gauge curve → the shore it floods</p>
+          <li class="plate-wide plate-flip">
+            <a class="plate" href="/tides.html" data-preview="/media/tides/reveal">
+              <div class="plate-media">
+                <img src="/media/tides/cover-1600.webp" srcset="/media/tides/cover-800.webp 800w, /media/tides/cover-1600.webp 1600w" sizes="(max-width: 900px) 100vw, 66vw" width="1600" height="1000" loading="lazy" decoding="async" alt="A plaster-white model of a shore, with dark water standing among the tidal flats." />
+                <span class="plate-progress" aria-hidden="true"></span>
+              </div>
+              <div class="plate-body">
+                <p class="plate-number">Story IV</p>
                 <h3>Between Tides</h3>
-                <p>A month of measured sea level at Eastport, Maine, carried sideways onto the surveyed ground of the South Lubec flats, where seven meters of tide uncover square kilometers of seabed.</p>
-                <p class="card-meta"><span>8 chapters</span><span>NOAA CO-OPS · CUDEM</span></p>
+                <p class="plate-from">Tide gauge curve <span aria-hidden="true">→</span> the shore it floods</p>
+                <p class="plate-copy">A month of measured sea level at Eastport, Maine, carried sideways onto the surveyed ground of the South Lubec flats, where seven meters of tide uncover square kilometers of seabed.</p>
+                <p class="plate-meta">NOAA CO-OPS · CUDEM · a level, not a flood model</p>
               </div>
             </a>
           </li>
         </ul>
       </section>
 
-      <section aria-labelledby="instruments-title">
-        <h2 class="section-title" id="instruments-title">Instruments <span>Bring your own data: a GitHub account, a song</span></h2>
-        <ul class="cards">
+      <section class="instruments" aria-labelledby="instruments-title">
+        <div class="section-head">
+          <h2 id="instruments-title">Instruments</h2>
+          <p>Not stories. Two tools that run on what you bring.</p>
+        </div>
+        <ul class="instrument-list">
           <li>
-            <a class="card card-skyline" href="/skyline.html">
-              <div class="card-art card-art-bars" aria-hidden="true">
-                <span style="--h: 30%"></span><span style="--h: 62%"></span><span style="--h: 44%"></span>
-                <span style="--h: 88%"></span><span style="--h: 20%"></span><span style="--h: 70%"></span>
-                <span style="--h: 52%"></span><span style="--h: 36%"></span><span style="--h: 78%"></span>
-                <span style="--h: 26%"></span><span style="--h: 58%"></span><span style="--h: 40%"></span>
-              </div>
-              <div class="card-body">
-                <p class="card-from">GitHub contribution calendar → a city at night</p>
+            <a class="instrument" href="/skyline.html">
+              <img src="/media/skyline/cover-800.webp" width="800" height="500" loading="lazy" decoding="async" alt="A night city of lit towers, one for each day of a year of GitHub contributions." />
+              <div>
                 <h3>Commit City</h3>
-                <p>Type any GitHub username and a year of contributions rises as a city, one lit building a day, or as a glowing contour terrain.</p>
-                <p class="card-meta"><span>Interactive</span><span>GitHub contributions</span></p>
+                <p class="plate-from">GitHub contribution calendar <span aria-hidden="true">→</span> a city at night</p>
               </div>
+              <p class="instrument-copy">Type any GitHub username and a year of contributions rises as a city, one lit building a day, or as a contour terrain.</p>
+              <p class="plate-meta">Your username</p>
             </a>
           </li>
           <li>
-            <a class="card card-pulsar" href="/pulsar.html">
-              <svg class="card-art card-art-ridges" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                <path d="M0 62 L118 62 Q130 60 138 46 T154 26 T170 44 T186 34 T202 62 L320 62" />
-                <path d="M0 82 L122 82 Q134 80 142 64 T158 40 T174 60 T190 50 T206 82 L320 82" />
-                <path d="M0 102 L116 102 Q128 100 136 82 T152 60 T166 82 T182 68 T198 102 L320 102" />
-                <path d="M0 122 L120 122 Q130 120 140 100 T156 74 T172 98 T188 88 T204 122 L320 122" />
-                <path d="M0 142 L112 142 Q126 140 134 118 T150 92 T166 120 T182 102 T198 142 L320 142" />
-              </svg>
-              <div class="card-body">
-                <p class="card-from">Stacked pulsar plot → ridges driven by music</p>
+            <a class="instrument" href="/pulsar.html">
+              <img src="/media/pulsar/cover-800.webp" width="800" height="500" loading="lazy" decoding="async" alt="White ridgelines on black, stacked in the manner of the famous pulsar plot." />
+              <div>
                 <h3>PSR B1919+21</h3>
-                <p>A tribute to the most famous plot in radio astronomy. Play a song, open the microphone or start the built-in synth, and its spectrum flows away as white ridges.</p>
-                <p class="card-meta"><span>Interactive</span><span>Your music</span></p>
+                <p class="plate-from">Stacked pulsar plot <span aria-hidden="true">→</span> ridges driven by music</p>
               </div>
+              <p class="instrument-copy">A tribute to the most famous plot in radio astronomy. Play a song, open the microphone or start the built-in synth, and its spectrum flows away as white ridges.</p>
+              <p class="plate-meta">Your music</p>
             </a>
           </li>
         </ul>
+      </section>
+
+      <section class="method" aria-labelledby="method-title">
+        <h2 id="method-title">Beauty answers to the data</h2>
+        <dl>
+          <div><dt>Measured</dt><dd>Every story says which parts were measured, which were interpolated, and which are a rendering choice, on screen, at its big moment.</dd></div>
+          <div><dt>Reproducible</dt><dd>Each story's data rebuilds byte for byte from its public sources, and CI checks that every week.</dd></div>
+          <div><dt>Inspectable</dt><dd>Figures in the prose are tested against the data. <a href="/making.html">See how Storm Chamber was made</a>.</dd></div>
+        </dl>
       </section>
 
       <footer class="home-footer">
-        <p>Built with Three.js and Vite, without a framework. Every number on screen comes from the source it cites; each piece's “About the data” panel says how it was made.</p>
-        <p><a href="https://github.com/Qiao527/datascape">Source on GitHub</a></p>
+        <p>Built with Three.js and Vite, without a framework. Each piece's “About the data” panel names its sources and limits.</p>
+        <p><a href="/making.html">How it was made</a> · <a href="https://github.com/Qiao527/datascape">Source on GitHub</a> · <a href="/third-party-notices.txt">Third-party notices</a></p>
       </footer>
     </main>
   </body>
