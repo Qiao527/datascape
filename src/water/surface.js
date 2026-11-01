@@ -9,10 +9,10 @@ const PATCH_PHASE = { ice: PHASE.ICE, liquid: PHASE.LIQUID, vapor: PHASE.VAPOR }
 const CURTAIN_PHASE = { boiling: PHASE.BOILING, sublimation: PHASE.SUBLIMATION, melting: PHASE.MELTING };
 
 export const PALETTE = {
-  ice: new THREE.Color(0xdde6ec),
-  liquid: new THREE.Color(0x7d9bb2),
-  vapor: new THREE.Color(0xd8d2c8),
-  supercritical: new THREE.Color(0xb3b2c6),
+  ice: new THREE.Color(0xc9d6df),
+  liquid: new THREE.Color(0x6f93ad),
+  vapor: new THREE.Color(0x8d8a84),
+  supercritical: new THREE.Color(0xa6a5bc),
   boiling: new THREE.Color(0xf3efe8),
   frost: new THREE.Color(0xe2eaf0),
   accent: new THREE.Color(0xe8b66e)
@@ -147,7 +147,10 @@ export function createSurface(data, { fog }) {
         float specular = pow(max(dot(n, h), 0.0), 90.0) * 0.12 * (1.0 - wall);
         float fresnel = pow(1.0 - max(dot(n, v), 0.0), 5.0);
 
-        float lit = 0.06 + 0.64 * key * pool + 0.3 * fill + 0.08 * back;
+        // Brightness follows density, so height can be read from the shading:
+        // the thin vapor falls away into the dark, the dense plateau holds the lamp.
+        float dense01 = clamp((logRho - LOGRHO_MIN) / (3.1 - LOGRHO_MIN), 0.0, 1.0);
+        float lit = (0.05 + 0.6 * key * pool + 0.26 * fill + 0.08 * back) * mix(0.34, 1.12, dense01 * dense01);
         vec3 color = tint * lit + specular * pool;
         color = mix(color, tint * 0.05, underside * 0.5);
         color += tint * fresnel * 0.12;
@@ -157,7 +160,7 @@ export function createSurface(data, { fog }) {
           // with a faint glow toward the dense rim that brightens on cue.
           float highlight = vPhase < 3.5 ? uHighlight.x : uHighlight.y;
           float rim = pow(vFrac, 3.0);
-          color = tint * (0.1 + 0.42 * fill + 0.1 * back + 0.08 * rim);
+          color = tint * (0.07 + 0.34 * fill + 0.08 * back + 0.34 * rim);
           float breathe = 0.75 + 0.25 * sin(uTime * 1.4 - logRho * 1.1);
           color += uBoil * highlight * (0.05 + 0.12 * rim) * breathe;
           color += tint * fresnel * 0.08;
@@ -166,11 +169,14 @@ export function createSurface(data, { fog }) {
         float region = uHighlight.z * smoothstep(T_CRIT - 2.0, T_CRIT + 6.0, T) * smoothstep(LOGP_CRIT - 0.02, LOGP_CRIT + 0.1, logP);
         color += uSuper * region * 0.35;
 
-        // Engraved isolines: isotherms every 50 K, isobars every decade,
-        // density contours every decade.
+        // Engraved isolines, lighter than the surface like a scribed plate:
+        // isotherms every 50 K, isobars every decade, density contours every
+        // decade. On a wall the isotherms fall as tie lines, finer every 10 K,
+        // each joining a liquid to the vapor it coexists with.
         float lines = max(isoline(T / 50.0, 0.9) * 0.55, isoline(logP, 0.9) * 0.55);
-        lines = max(lines, isoline(logRho, 1.0) * 0.8);
-        color = mix(color, color * (wall > 0.5 ? 0.62 : 0.5), lines * uLines);
+        lines = max(lines, isoline(logRho, 1.0) * 0.9);
+        if (wall > 0.5) lines = max(lines, isoline(T / 10.0, 0.7) * 0.2);
+        color += vec3(0.86, 0.84, 0.8) * lines * uLines * (0.12 + 0.2 * pool);
 
         // Hovered isotherm and isobar.
         if (uHover.z > 0.0) {

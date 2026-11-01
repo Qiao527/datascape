@@ -9,7 +9,7 @@ export default [
   },
   {
     // Node code, and tests that run in Node but drive or mirror the browser.
-    files: ['server/**', 'functions/**', 'tests/**', '*.config.js'],
+    files: ['server/**', 'functions/**', 'tests/**', 'scripts/**', '*.config.js'],
     languageOptions: { globals: { ...globals.node, ...globals.browser } }
   }
 ];

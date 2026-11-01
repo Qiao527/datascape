@@ -2,7 +2,7 @@
   "name": "datascape",
   "version": "0.1.0",
   "private": true,
-  "description": "Turning familiar 2D charts into 3D scenes: a GitHub contribution city, a music-driven pulsar ridge plot, and a weather-radar volume scan opened into a storm.",
+  "description": "The Hidden Dimension: familiar charts opened back into the space they flattened, from a radar map, a phase diagram, an ECG and a tide curve, in Three.js.",
   "type": "module",
   "engines": {
     "node": ">=20"

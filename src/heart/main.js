@@ -9,7 +9,7 @@ import './heart.css';
 import { fontsReady } from '../shared/fonts.js';
 import { createComposer, createRenderer } from '../shared/post.js';
 import { createDimensionControl } from '../shared/dimension.js';
-import { MAX_DELTA, Tween, createCameraRig, createLabels, createStory, deg, lerp, reducedMotion } from '../shared/story.js';
+import { MAX_DELTA, Tween, chapterNotes, webglFallback, createCameraRig, createLabels, createStory, deg, lerp, reducedMotion } from '../shared/story.js';
 import { createAbout } from '../shared/about.js';
 import { CHAPTERS } from './chapters.js';
 import { PAPER, createPaper, createTwelveLead } from './paper.js';
@@ -30,7 +30,7 @@ let renderer;
 try {
   renderer = createRenderer(stage);
 } catch (error) {
-  stage.innerHTML = '<p class="webgl-error">This piece needs WebGL 2. Try another browser or turn on hardware acceleration.</p>';
+  stage.innerHTML = webglFallback('heart', 'This piece needs WebGL 2. Try another browser or turn on hardware acceleration.');
   loader.hidden = true;
   throw error;
 }
@@ -95,7 +95,7 @@ let sound = null;
 
 const CAMERAS = {
   paper: () => facePaper(1.16),
-  paperClose: () => ({ ...facePaper(0.66), target: [-4.6, 3.2, 0] }),
+  paperClose: () => ({ ...facePaper(0.9), target: [-4.2, 0.6, 0] }),
   fold: () => ({ target: loopCenter(), azimuth: deg(34), polar: deg(74), distance: 40, fov: 30 }),
   slow: () => ({ target: loopCenter(0.6), azimuth: deg(22), polar: deg(78), distance: 25, fov: 30 }),
   planes: () => ({ target: loopCenter(-1), azimuth: deg(42), polar: deg(62), distance: 44, fov: 30 }),
@@ -118,9 +118,9 @@ function loopCenter(dy = 0) {
 // ---------------------------------------------------------------------------
 // Story
 
-function enterChapter(chapter, index, { instant }) {
+function enterChapter(chapter, index, { instant, reveal }) {
   const t = (seconds) => (instant ? 0.01 : seconds);
-  state.dim.set(chapter.dim, t(chapter.dimDuration ?? 2.6));
+  state.dim.set(chapter.dim, t(reveal ? 7 : chapter.dimDuration ?? 2.6));
   state.dark.set(chapter.paper.dark, t(2.4));
   state.twelve.set(chapter.paper.twelve, t(1.6));
   state.strips.set(chapter.strips, t(1.8));
@@ -133,11 +133,12 @@ function enterChapter(chapter, index, { instant }) {
 
   const spec = CAMERAS[chapter.camera]();
   if (instant) rig.jumpTo(spec);
-  else rig.flyTo(spec, chapter.key === 'fold' ? 5.6 : 3);
+  else rig.flyTo(spec, reveal ? 7.4 : chapter.key === 'fold' ? 5.6 : 3);
 }
 
 function extraFor(chapter) {
-  if (!chapter.explore) return [];
+  const notes = chapterNotes(chapter, (key) => story.reveal(key));
+  if (!chapter.explore) return notes;
   const speeds = document.createElement('div');
   speeds.className = 'toggles';
   const options = [[0.1, '⅒×'], [0.25, '¼×'], [0.5, '½×'], [1, '1×']];
@@ -164,7 +165,7 @@ function extraFor(chapter) {
   const label = document.createElement('p');
   label.className = 'extra-label';
   label.textContent = 'Speed of time';
-  return [label, speeds, toggles];
+  return [...notes, label, speeds, toggles];
 }
 
 function toggle(text, get, set) {
@@ -184,9 +185,11 @@ function toggle(text, get, set) {
 const dimension = createDimensionControl(document.querySelector('#dimension'), {
   labels: ['2D', '3D'],
   caption: 'Hidden dimension · space',
-  onInput(value) {
+  stops: [[0, 'leads against time'], [0.5, 'folding'], [1, 'loop in space']],
+  onInput(value, jump) {
     if (!state.ready) return;
-    state.dim.snap(value);
+    if (jump) state.dim.set(value, 1.2);
+    else state.dim.snap(value);
     if (state.strips.to < 0.5) {
       state.strips.set(1, 0.8);
       state.twelve.set(0, 0.8);

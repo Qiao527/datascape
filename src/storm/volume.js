@@ -4,7 +4,7 @@ import * as THREE from 'three';
 // shaded as if it were smoke lit by the real evening sun; in data mode it
 // glows in the NWS colors. A horizontal section can cut it open.
 
-const SMOKE_DENSITY = 1.15; // per true km at full strength
+const SMOKE_DENSITY = 0.42; // per true km at full strength, thin enough to see the core through the shell
 const DATA_DENSITY = 1.6;
 
 const smooth = (a, b, x) => {
@@ -193,7 +193,7 @@ const FRAGMENT = /* glsl */ `
   float dataSigma(float dbz) {
     float t = clamp((dbz - 15.0) / 55.0, 0.0, 1.0);
     t = t * t * (3.0 - 2.0 * t);
-    return (0.004 + pow(t, 2.5)) * ${DATA_DENSITY.toFixed(3)} * step(18.0, dbz);
+    return (0.0016 + pow(t, 2.5)) * ${DATA_DENSITY.toFixed(3)} * step(18.0, dbz);
   }
   float hg(float c, float g) {
     float g2 = g * g;
@@ -262,10 +262,26 @@ const FRAGMENT = /* glsl */ `
         if (sigma > 1e-5) {
           float a = 1.0 - exp(-sigma * uStep * trueLen);
           vec2 light = texture(uLight, uvw).rg;
-          vec3 smoke = uSunColor * light.r * phase + uSkyColor * (0.22 + 0.78 * light.g);
-          if (uDebug > 0.5) smoke = uDebug < 1.5 ? vec3(light.r) : vec3(light.g);
-          vec3 dataColor = texture(uLut, vec2((code + 0.5) / 256.0, 0.75)).rgb * (0.62 + 0.5 * light.g);
-          color += T * a * mix(smoke, dataColor, uData);
+          // Only the palette on screen is read, so the march costs one lookup per step
+          // except while the two cross-fade.
+          vec3 shade = vec3(0.0);
+          if (uData < 0.999) {
+            vec3 smoke = uSunColor * light.r * phase + uSkyColor * (0.22 + 0.78 * light.g);
+            // The map's own grey-to-amber ramp, so a value keeps its color from the
+            // flat chart into the volume, and strong echo reads through the shell.
+            vec3 ramp = texture(uLut, vec2((code + 0.5) / 256.0, 0.25)).rgb;
+            smoke *= 0.28 + 0.92 * ramp;
+            // Echo past 50 dBZ, the story's hail threshold, glows: a data contour,
+            // not light. It is what lets the core be read from outside.
+            smoke += vec3(1.0, 0.56, 0.2) * smoothstep(48.0, 60.0, dbz) * 1.1;
+            if (uDebug > 0.5) smoke = uDebug < 1.5 ? vec3(light.r) : vec3(light.g);
+            shade = smoke;
+          }
+          if (uData > 0.001) {
+            vec3 dataColor = texture(uLut, vec2((code + 0.5) / 256.0, 0.75)).rgb * (0.62 + 0.5 * light.g);
+            shade = mix(shade, dataColor, uData);
+          }
+          color += T * a * shade;
           T *= 1.0 - a;
         }
       }
@@ -326,8 +342,8 @@ export function createVolume({ data, lut, groundKm, sunDirection }) {
     uTexOffset: { value: new THREE.Vector3() },
     uVert: { value: 2 },
     uSun: { value: sunDirection.clone().normalize() },
-    uSunColor: { value: new THREE.Color(1.0, 0.8, 0.6).multiplyScalar(2.2) },
-    uSkyColor: { value: new THREE.Color(0.3, 0.335, 0.4).multiplyScalar(0.8) },
+    uSunColor: { value: new THREE.Color(1.0, 0.78, 0.56).multiplyScalar(1.5) },
+    uSkyColor: { value: new THREE.Color(0.3, 0.345, 0.43).multiplyScalar(0.62) },
     uOpacity: { value: 0 },
     uData: { value: 0 },
     uCutY: { value: 1e4 },

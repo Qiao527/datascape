@@ -154,3 +154,23 @@ body {
 .scene-label-up .scene-label-text {
   translate: 0 calc(-100% - 6px);
 }
+
+/* Very short screens: the month has to stay beside the chapter, not under it. */
+@media (max-width: 900px) and (max-height: 640px) and (orientation: portrait) {
+  .chapter {
+    max-height: calc(100svh - 176px);
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .timeline {
+    left: calc(min(46vw, 400px) + 32px);
+    right: 14px;
+    top: auto;
+    bottom: 14px;
+  }
+
+  .timeline::before {
+    display: none;
+  }
+}

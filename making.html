@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>How Storm Chamber was made · Datascape</title>
+    <meta name="description" content="From a NOAA radar file to a ray-marched chamber of sky: the data, the beam geometry, the shader, the performance and the line between measurement and rendering." />
+    <meta name="theme-color" content="#0b0b0d" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Datascape" />
+    <meta property="og:title" content="How Storm Chamber was made" />
+    <meta property="og:description" content="From a NOAA radar file to a ray-marched chamber of sky." />
+    <meta property="og:url" content="https://datascape-5of.pages.dev/making.html" />
+    <meta property="og:image" content="https://datascape-5of.pages.dev/media/og/storm.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="module" src="/src/making.js"></script>
+  </head>
+  <body>
+    <main class="making">
+      <header class="making-head">
+        <a class="back" href="/"><span aria-hidden="true">←</span> Datascape</a>
+        <p class="eyebrow">Behind the scene</p>
+        <h1>How Storm Chamber was made</h1>
+        <p class="lede">One 11.5 MB radar file, one fragment shader, and a rule: whatever is on screen has to say whether it was measured, interpolated or drawn. <a href="/storm.html">Open the piece</a>.</p>
+        <dl class="making-facts">
+          <div><dt>Source</dt><dd>NOAA NEXRAD Level II</dd></div>
+          <div><dt>Scan</dt><dd>14 sweeps, 268.6 s</dd></div>
+          <div><dt>Grid</dt><dd>161 × 161 × 41, 0.5 km</dd></div>
+          <div><dt>Download</dt><dd>580 kB of data</dd></div>
+        </dl>
+      </header>
+
+      <section class="step">
+        <div class="step-text">
+          <p class="step-number">1 · Raw data</p>
+          <h2>The file is polar, and it is not a picture</h2>
+          <p>A WSR-88D radar writes rays: for each azimuth, a list of range gates, each with a reflectivity in dBZ and a correlation coefficient. This file, <code>KDDC20130519_000455_V06</code>, is a public volume scan from Dodge City. The generator keeps gates with ρhv ≥ 0.8 unless they are at least 40 dBZ, removes isolated patches, and resamples each sweep onto a regular azimuth × range grid.</p>
+        </div>
+        <figure>
+          <img src="/media/making/prologue.webp" width="1200" height="750" loading="lazy" decoding="async" alt="The lowest radar sweep drawn flat, with range rings and town names." />
+          <figcaption>The lowest sweep, 720 azimuths by 600 gates, drawn as the familiar map.</figcaption>
+        </figure>
+      </section>
+
+      <section class="step">
+        <div class="step-text">
+          <p class="step-number">2 · Geometry</p>
+          <h2>A map hides fourteen cones</h2>
+          <p>The antenna tilts through fourteen elevations, and each beam bends with the atmosphere while the ground curves away. Both are in the standard 4/3-Earth model, implemented once in <code>src/storm/beam.js</code>. The JavaScript matches the Python generator to within 5 m on every sweep. The plot here is drawn live from the piece's own <code>storm.json</code> by that same module.</p>
+        </div>
+        <figure class="beam-figure">
+          <svg id="beam-plot" role="img" aria-labelledby="beam-title" viewBox="0 0 720 360"><title id="beam-title">Height of the fourteen radar beams against ground range, out to 150 kilometers.</title></svg>
+          <figcaption id="beam-caption">Height of each beam above the antenna against ground range; the height axis is stretched to separate them. Amber marks the storm, about 60 km out.</figcaption>
+        </figure>
+      </section>
+
+      <section class="step">
+        <div class="step-text">
+          <p class="step-number">3 · Volume</p>
+          <h2>Between the cones, nothing was measured</h2>
+          <p>Each voxel center in an 80 × 80 × 20 km box is converted to slant range, azimuth and elevation. It takes the nearest gate from the two sweeps that bracket it, interpolated linearly in dBZ, and is left empty below the lowest beam and above the highest sweep that reaches it. A light Gaussian (0.3–0.35 km) removes stair steps. The scan took 4.5 minutes, but the box treats it as one instant, and the chapter before it says so.</p>
+        </div>
+        <figure>
+          <img src="/media/making/section.webp" width="1200" height="750" loading="lazy" decoding="async" alt="A horizontal slice through the storm at 5 kilometers, with a small hole near its southern edge." />
+          <figcaption>A slice at 5 km. The pocket is the bounded weak-echo region, verified by flood fill in a unit test.</figcaption>
+        </figure>
+      </section>
+
+      <section class="step">
+        <div class="step-text">
+          <p class="step-number">4 · Rendering</p>
+          <h2>One pass, one shader, in WebGL 2</h2>
+          <p>Three.js sets up the scene; the volume itself is a single fragment shader marching through a 3D texture, drawn on the back faces of a box. There is no mesh of the storm and no particle in it. Extinction grows with reflectivity, and strong echo glows along the same amber ramp the flat map uses, so a value keeps its color from 2D to 3D. This excerpt is the actual code:</p>
+        </div>
+        <figure class="code-figure">
+          <pre tabindex="0" aria-label="Excerpt of the fragment shader from src/storm/volume.js"><code>float code = texture(uVolume, uvw).r * 255.0;
+if (code &gt; 0.5) {
+  float dbz = 5.0 + (code - 1.0) * 0.3;
+  float sigma = mix(smokeSigma(dbz), dataSigma(dbz), uData);
+  // ...
+  float a = 1.0 - exp(-sigma * uStep * trueLen);
+  vec2 light = texture(uLight, uvw).rg;
+  vec3 smoke = uSunColor * light.r * phase
+             + uSkyColor * (0.22 + 0.78 * light.g);
+  // ...
+  color += T * a * mix(smoke, dataColor, uData);
+  T *= 1.0 - a;
+}</code></pre>
+          <figcaption><code>src/storm/volume.js</code>, condensed.</figcaption>
+        </figure>
+      </section>
+
+      <section class="step">
+        <div class="step-text">
+          <p class="step-number">5 · Why this method</p>
+          <h2>Why not a mesh, or real cloud physics?</h2>
+          <p>An isosurface would have implied that a storm has a surface. Real multiple scattering would have cost the frame rate for light that is a rendering choice anyway. So the sun, at its true position for 7:05 p.m., is baked once on the CPU into a light texture: optical depth walked slice by slice away from the sun. Each ray step then reads that value, instead of marching a second ray.</p>
+        </div>
+        <figure>
+          <img src="/media/making/volume.webp" width="1200" height="750" loading="lazy" decoding="async" alt="The storm as a pale volume inside a wireframe box, floating above the ground." />
+          <figcaption>Smoke shading. It floats because the radar measures nothing below its lowest beam.</figcaption>
+        </figure>
+      </section>
+
+      <section class="step">
+        <div class="step-text">
+          <p class="step-number">6 · Performance</p>
+          <h2>Dropped frames, not average frames</h2>
+          <p>A 4 × 4 × 4 occupancy grid lets rays skip empty space. Under vsync an average frame time hides trouble, since a third of frames at 33 ms still averages 22 ms. So the loop counts frames that miss the display interval: over 5% in a second steps the pixel ratio down by 15% and bars it from returning for 30 s, and three clean seconds step it back up. At the lowest ratio the ray step coarsens too.</p>
+        </div>
+        <figure class="table-figure">
+          <table>
+            <caption>Frames dropped in 10 s, tornado chapter, Apple M1, 1440 × 900 at 2×</caption>
+            <thead><tr><th scope="col">Loop</th><th scope="col">Dropped</th><th scope="col">p95</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Average frame time</th><td>147–149 of 394</td><td>50 ms</td></tr>
+              <tr><th scope="row">Missed frames</th><td>9–11 of ≈ 590</td><td>18.6 ms</td></tr>
+            </tbody>
+          </table>
+          <figcaption>Measured when that loop was written, before the 2026-11 light changes, which made this chapter heavier. Later measurements are in <code>docs/storm-chamber.md</code>.</figcaption>
+        </figure>
+      </section>
+
+      <section class="step">
+        <div class="step-text">
+          <p class="step-number">7 · The line</p>
+          <h2>What is real, and what is not</h2>
+          <p>The piece puts this on screen in the chapter that fills the box. Reflectivity is not cloud density, and it is not wind: the updraft in the section chapter is inferred from the shape of the echo.</p>
+        </div>
+        <dl class="truth">
+          <div><dt>Measured</dt><dd>The fourteen sweeps. The strongest echo, 68.5 dBZ, and the echo tops are read from them directly, not from the grid.</dd></div>
+          <div><dt>Interpolated</dt><dd>Everything between the sweeps, in dBZ. Fine structure smaller than the spacing is smoothed or lost.</dd></div>
+          <div><dt>Recorded</dt><dd>The tornado: NOAA Storm Events, event 457695. The radar did not see it; the lowest beam passed 900 m above that ground.</dd></div>
+          <div><dt>Drawn</dt><dd>The light, the shadow and the glow of strong echo. Heights are doubled until you ask for true scale.</dd></div>
+        </dl>
+      </section>
+
+      <section class="step">
+        <div class="step-text">
+          <p class="step-number">8 · Trade-offs</p>
+          <h2>What was given up</h2>
+          <p>Softness is the price of honesty here: at a 0.5 km grid, sharper edges would be invented. The horizontal bands high in the storm are the sweeps themselves, and they stay. The NWS colors are loud, but they are what a forecaster reads, so they are one toggle away, not the default.</p>
+        </div>
+        <figure>
+          <img src="/media/making/reflectivity.webp" width="1200" height="750" loading="lazy" decoding="async" alt="The storm in standard weather-radar colors, from blue through green and yellow to a hot core." />
+          <figcaption>The same box in NWS 5-dBZ colors, for reading values.</figcaption>
+        </figure>
+      </section>
+
+      <section class="others" aria-labelledby="others-title">
+        <h2 id="others-title">The other three, briefly</h2>
+        <ul>
+          <li><a href="/water.html">The Shadow of Water</a><p>Patches and coexistence walls are built from tables computed in advance with IAPWS formulations. Shading follows density, and the scribed lines are real isotherms, isobars and density contours, computed in the fragment shader with <code>fwidth</code>.</p></li>
+          <li><a href="/heart.html">The Electric Heart</a><p>The samples live in a texture and the vertex shader moves each point between the strip and the loop, so the fold is one continuous mesh. Trails are computed from sample time, not accumulated between frames.</p></li>
+          <li><a href="/tides.html">Between Tides</a><p>The ground and the sea share a height texture. The waterline is simply where the fragment's elevation meets the measured level, so scrubbing the month only updates a few uniforms.</p></li>
+        </ul>
+      </section>
+
+      <footer class="making-foot">
+        <p>Full method and verification: <a href="https://github.com/Qiao527/datascape/blob/main/docs/storm-chamber.md">docs/storm-chamber.md</a>. The data rebuilds byte for byte with <code>scripts/check_reproducible.sh</code>.</p>
+        <p><a href="/">Back to Datascape</a></p>
+      </footer>
+    </main>
+  </body>
+</html>

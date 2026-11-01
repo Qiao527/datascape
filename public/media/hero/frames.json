@@ -1,0 +1,113 @@
+{
+ "rest": 13,
+ "frames": [
+  {
+   "name": "frame-00",
+   "dimension": 0.002
+  },
+  {
+   "name": "frame-01",
+   "dimension": 0.016
+  },
+  {
+   "name": "frame-02",
+   "dimension": 0.054
+  },
+  {
+   "name": "frame-03",
+   "dimension": 0.13
+  },
+  {
+   "name": "frame-04",
+   "dimension": 0.255
+  },
+  {
+   "name": "frame-05",
+   "dimension": 0.411
+  },
+  {
+   "name": "frame-06",
+   "dimension": 0.526
+  },
+  {
+   "name": "frame-07",
+   "dimension": 0.595
+  },
+  {
+   "name": "frame-08",
+   "dimension": 0.628
+  },
+  {
+   "name": "frame-09",
+   "dimension": 0.639
+  },
+  {
+   "name": "frame-10",
+   "dimension": 0.64
+  },
+  {
+   "name": "frame-11",
+   "dimension": 0.64
+  },
+  {
+   "name": "frame-12",
+   "dimension": 0.64
+  },
+  {
+   "name": "frame-13",
+   "dimension": 0.64
+  },
+  {
+   "name": "frame-14",
+   "dimension": 0.644
+  },
+  {
+   "name": "frame-15",
+   "dimension": 0.656
+  },
+  {
+   "name": "frame-16",
+   "dimension": 0.684
+  },
+  {
+   "name": "frame-17",
+   "dimension": 0.732
+  },
+  {
+   "name": "frame-18",
+   "dimension": 0.808
+  },
+  {
+   "name": "frame-19",
+   "dimension": 0.891
+  },
+  {
+   "name": "frame-20",
+   "dimension": 0.946
+  },
+  {
+   "name": "frame-21",
+   "dimension": 0.977
+  },
+  {
+   "name": "frame-22",
+   "dimension": 0.994
+  },
+  {
+   "name": "frame-23",
+   "dimension": 0.999
+  },
+  {
+   "name": "frame-24",
+   "dimension": 1
+  },
+  {
+   "name": "frame-25",
+   "dimension": 1
+  },
+  {
+   "name": "frame-26",
+   "dimension": 1
+  }
+ ]
+}

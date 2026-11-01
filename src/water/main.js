@@ -16,6 +16,7 @@ import { BASE_Y, POSE_B, logPToZ, tToX, xToT, yToLogRho, zToLogP } from './mappi
 import { formatDensity, formatPressure, formatTemperature, phaseName, trim } from './format.js';
 import { createDimensionControl } from '../shared/dimension.js';
 import { createAbout } from '../shared/about.js';
+import { chapterNotes, webglFallback } from '../shared/story.js';
 
 const BACKGROUND = new THREE.Color(0x0b0b0d);
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -65,6 +66,12 @@ class Tween {
     this.duration = reducedMotion ? Math.min(duration, 0.4) : duration;
   }
 
+  /** Jump without animating (e.g. while a slider is dragged). */
+  snap(value) {
+    this.value = this.from = this.to = value;
+    this.elapsed = this.duration = 0;
+  }
+
   update(delta) {
     if (this.elapsed >= this.duration) {
       this.value = this.to;
@@ -82,7 +89,7 @@ let renderer;
 try {
   renderer = createRenderer(stage);
 } catch (error) {
-  stage.innerHTML = '<p class="webgl-error">This piece needs WebGL 2. Try another browser or turn on hardware acceleration.</p>';
+  stage.innerHTML = webglFallback('water', 'This piece needs WebGL 2. Try another browser or turn on hardware acceleration.');
   loader.hidden = true;
   throw error;
 }
@@ -145,10 +152,12 @@ const sound = createSound();
 // The series control: 0 is the flat textbook diagram, 1 the full surface.
 const dimension = createDimensionControl(document.querySelector('#dimension'), {
   caption: 'Hidden dimension · density',
-  onInput(value) {
+  stops: [[0, 'phase diagram'], [0.5, 'rising'], [1, 'the whole surface']],
+  onInput(value, jump) {
     if (!state.data) return;
     if (state.pose.to > 0.5) state.pose.set(0, 2);
-    state.rise.snap(value);
+    if (jump) state.rise.set(value, 1.2);
+    else state.rise.snap(value);
     state.beam.set(value > 0.05 ? 1 : 0, 1);
   }
 });
@@ -184,13 +193,14 @@ function topDown(bounds, margin = 1.08) {
 const CAMERAS = {
   topPT: () => topDown(state.stageView.ptBounds),
   topPV: () => topDown(state.stageView.pvBounds, 1.04),
-  rise: () => ({ target: [0, 5.4, -0.5], azimuth: deg(22), polar: deg(60), distance: 47, fov: 32 }),
-  wall: () => ({ target: [-0.6, 7.6, -2.6], azimuth: deg(30), polar: deg(64), distance: 42, fov: 32 }),
+  rise: () => ({ target: [0, 6, -1], azimuth: deg(-35), polar: deg(72), distance: 46, fov: 32 }),
+  // Low and side-on: the wall stands as a blade, directly over the line it casts.
+  wall: () => ({ target: [0, 5, 0], azimuth: deg(-58), polar: deg(84), distance: 44, fov: 32 }),
   kettle: () => ({ target: [-5.2, 6.4, -1.6], azimuth: deg(28), polar: deg(52), distance: 27, fov: 32 }),
   critical: () => ({ target: [5.4, 9.8, -5.0], azimuth: deg(36), polar: deg(62), distance: 25, fov: 32 }),
   triple: () => ({ target: [-9.0, 9.6, 2.4], azimuth: deg(34), polar: deg(70), distance: 18, fov: 32 }),
   side: () => ({ target: [0, 12.5, 0], azimuth: deg(38), polar: deg(68), distance: 58, fov: 32 }),
-  explore: () => ({ target: [0, 5.5, -0.5], azimuth: deg(18), polar: deg(58), distance: 46, fov: 32 })
+  explore: () => ({ target: [0, 6, -1], azimuth: deg(-35), polar: deg(72), distance: 46, fov: 32 })
 };
 
 function framingFor(spec) {
@@ -289,7 +299,7 @@ function buildDots() {
   }));
 }
 
-function goTo(index, { instant = false } = {}) {
+function goTo(index, { instant = false, reveal = false } = {}) {
   index = Math.max(0, Math.min(CHAPTERS.length - 1, index));
   if (index === state.chapter) return;
   const chapter = CHAPTERS[index];
@@ -303,7 +313,7 @@ function goTo(index, { instant = false } = {}) {
   sound.setBoiling(null);
 
   const duration = instant ? 0.01 : 1;
-  state.rise.set(chapter.rise, index === 1 && !instant ? 3.6 : 1.6 * duration);
+  state.rise.set(chapter.rise, reveal ? 6.5 : index === 1 && !instant ? 3.6 : 1.6 * duration);
   state.pose.set(chapter.pose, instant ? 0.01 : 3.8);
   state.beam.set(chapter.beam, instant ? 0.01 : 2.4);
   state.ghost.set(chapter.ghost ?? 1, instant ? 0.01 : 1.6);
@@ -312,10 +322,10 @@ function goTo(index, { instant = false } = {}) {
 
   const spec = CAMERAS[chapter.camera]();
   if (instant) jumpTo(spec);
-  else flyTo(spec, chapter.key === 'turn' ? 4.2 : index === 1 ? 4.4 : 3);
+  else flyTo(spec, reveal ? 7 : chapter.key === 'turn' ? 4.2 : index === 1 ? 4.4 : 3);
 
   renderChapter(chapter, index);
-  history.replaceState(null, '', `#${chapter.key}`);
+  history.replaceState(null, '', `${location.search}#${chapter.key}`);
 }
 
 function renderChapter(chapter, index) {
@@ -336,7 +346,7 @@ function renderChapter(chapter, index) {
 }
 
 function extraFor(chapter) {
-  const nodes = [];
+  const nodes = chapterNotes(chapter, (key) => goTo(CHAPTERS.findIndex((item) => item.key === key), { reveal: true }));
   if (chapter.replay) {
     const button = document.createElement('button');
     button.type = 'button';
@@ -563,6 +573,11 @@ controls.addEventListener('end', () => {
   state.userInteracting = false;
   state.lastInteraction = timer.getElapsed();
 });
+// A hash typed into the address bar, or a link to #chapter, moves the story.
+window.addEventListener('hashchange', () => {
+  const index = CHAPTERS.findIndex((chapter) => `#${chapter.key}` === location.hash);
+  if (state.data && index >= 0) goTo(index);
+});
 canvas.addEventListener('dblclick', () => flyTo(CAMERAS[CHAPTERS[state.chapter].camera](), 1.8));
 
 ui.sound.addEventListener('click', async () => {
@@ -604,6 +619,8 @@ function applyObjectPose() {
   const uniforms = state.stageView.uniforms;
   uniforms.uDiagramMix.value = smoothstep(0.62, 0.96, pose);
   uniforms.uDiagramOpacity.value = 1 - 0.8 * Math.pow(Math.sin(Math.PI * pose), 2);
+  // The lamp narrows on the object once there is an object to look at.
+  uniforms.uLight.value = lerp(1, 0.62, smoothstep(0.1, 0.9, rise));
 }
 
 function animate(timestamp) {

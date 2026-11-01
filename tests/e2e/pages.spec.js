@@ -24,7 +24,7 @@ test('home links to all six pieces, in English', async ({ page }) => {
 });
 
 test('no page is left in Chinese', async ({ page }) => {
-  for (const path of ['/', '/storm.html', '/water.html', '/heart.html', '/tides.html', '/skyline.html', '/pulsar.html']) {
+  for (const path of ['/', '/making.html', '/storm.html', '/water.html', '/heart.html', '/tides.html', '/skyline.html', '/pulsar.html']) {
     await page.goto(path);
     expect(await page.getAttribute('html', 'lang'), path).toBe('en');
     const text = await page.locator('body').innerText();

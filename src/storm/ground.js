@@ -60,7 +60,7 @@ export function createGround({ background, shadow }) {
           float lit = 1.0;
           if (uv.x > 0.0 && uv.y > 0.0 && uv.x < 1.0 && uv.y < 1.0) lit = texture2D(uShadow, uv).r;
           color *= mix(1.0, 0.45 + 0.55 * lit, uShadowAmount);
-          color += vec3(0.03, 0.02, 0.01) * lit * uShadowAmount * (1.0 - smoothstep(60.0, 200.0, s));
+          color += vec3(0.007, 0.0065, 0.006) * lit * uShadowAmount * (1.0 - smoothstep(60.0, 200.0, s));
 
           color = mix(color, uBackground, smoothstep(175.0, 330.0, s));
           gl_FragColor = vec4(color, 1.0);

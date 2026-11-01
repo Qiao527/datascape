@@ -24,6 +24,7 @@ export default defineConfig({
     rolldownOptions: {
       input: {
         index: resolve(root, 'index.html'),
+        making: resolve(root, 'making.html'),
         water: resolve(root, 'water.html'),
         heart: resolve(root, 'heart.html'),
         tides: resolve(root, 'tides.html'),
